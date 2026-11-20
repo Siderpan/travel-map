@@ -197,6 +197,11 @@ header .sub{font-size:13px;color:var(--muted);margin-top:2px}
 .trip.hasfab h3{padding-right:20px}
 .mapfab{position:absolute;z-index:2;right:12px;bottom:12px;width:42px;height:42px;border-radius:50%;border:2.5px solid var(--edge);background:var(--sky);box-shadow:2px 2px 0 var(--edge);display:grid;place-items:center;cursor:pointer;padding:0;transition:transform .15s,box-shadow .15s}
 .mapfab svg{width:20px;height:20px}
+.mapfab.crewfab{bottom:62px;background:var(--mint)}
+.trip.twofab{min-height:124px}
+.crewpick{display:flex;flex-wrap:wrap;gap:8px}
+.crewpick .cchip{font-size:14px;padding:3px 12px 3px 3px}
+.crewpick .cchip .av{width:28px;height:28px;font-size:15px}
 .mapfab:hover{transform:translate(-1px,-2px) rotate(-8deg);box-shadow:3px 4px 0 var(--edge);background:var(--sun)}
 .mapfab:active{transform:translate(1px,1px);box-shadow:0 0 0 var(--edge)}
 .crew{display:flex;align-items:center;gap:8px;margin-top:8px;font-size:12.5px;font-weight:700;color:var(--muted)}
@@ -260,6 +265,39 @@ form.cform input{border:2px solid var(--edge);border-radius:12px;padding:7px 10p
 .elabel{font-size:11.5px;font-weight:700;color:var(--muted);margin:2px 0 4px}
 .emojis button{width:40px;height:40px;border-radius:50%;border:2px solid var(--edge);background:var(--paper);font-size:20px;cursor:pointer;padding:0;line-height:1}
 .emojis button[aria-pressed="true"]{background:var(--sun);transform:rotate(-8deg) scale(1.08);box-shadow:2px 2px 0 var(--edge)}
+.tcard{position:relative;background:var(--paper);border:2.5px solid var(--edge);border-radius:22px;box-shadow:3px 3px 0 var(--edge);display:flex;flex-direction:column;transition:transform .18s ease,box-shadow .18s ease}
+.tcard.link{cursor:pointer}
+.tcard:hover{transform:translate(-2px,-5px) rotate(-.8deg);box-shadow:6px 8px 0 var(--edge)}
+.tcard:active{transform:translate(1px,1px);box-shadow:1px 1px 0 var(--edge)}
+.tcard .cover{position:absolute;inset:0;z-index:1;border-radius:20px}
+.th{display:flex;align-items:center;gap:12px;padding:14px 14px 16px;border-radius:19px 19px 0 0;background-color:var(--sc);background-image:repeating-linear-gradient(-45deg,rgba(255,255,255,.28) 0 9px,transparent 9px 18px)}
+.pm{flex:0 0 auto;width:50px;height:50px;border-radius:50%;background:var(--paper);border:2.5px solid var(--edge);outline:2px dashed var(--edge);outline-offset:3px;display:grid;place-items:center;font-family:var(--f-pop);font-size:21px;transform:rotate(-10deg);transition:transform .3s cubic-bezier(.34,1.56,.64,1)}
+.tcard:hover .pm{transform:rotate(12deg) scale(1.08)}
+.tc{min-width:0;flex:1}
+.tc small{display:block;font-family:var(--f-pop);font-size:10px;letter-spacing:.08em;opacity:.75}
+.tc b{display:block;font-family:var(--f-display);font-weight:400;font-size:20px;line-height:1.2}
+.tstat{flex:0 0 auto;background:var(--paper);border:2.5px solid var(--edge);border-radius:999px;padding:4px 10px 3px;font-family:var(--f-pop);font-size:11.5px;transform:rotate(5deg);box-shadow:2px 2px 0 var(--edge)}
+.st-u .tstat{animation:tick 2.2s ease-in-out infinite}
+@keyframes tick{0%,80%,100%{transform:rotate(5deg)}85%{transform:rotate(-6deg) scale(1.08)}90%{transform:rotate(9deg) scale(1.08)}}
+.tperf{position:relative;height:0;border-top:2.5px dashed var(--edge);margin:0 14px}
+.tperf::before,.tperf::after{content:"";position:absolute;top:-13px;width:22px;height:22px;border-radius:50%;background:var(--paper);border:2.5px solid var(--edge)}
+.tperf::before{left:-28px;clip-path:inset(0 0 0 50%)}
+.tperf::after{right:-28px;clip-path:inset(0 50% 0 0)}
+.tplane{position:absolute;top:-12px;left:0;font-size:15px;line-height:1;animation:fly 7s linear infinite;color:var(--ink)}
+@keyframes fly{from{left:0;opacity:0}8%{opacity:1}92%{opacity:1}to{left:calc(100% - 16px);opacity:0}}
+.tb{padding:14px 62px 16px 16px;display:flex;flex-direction:column;gap:6px}
+.tb h3{font-size:20px}
+.tdate{font-size:13px;font-weight:700;color:var(--muted);font-variant-numeric:tabular-nums;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.tdays{background:var(--ss);border:2px solid var(--edge);border-radius:999px;padding:0 8px;font-size:11.5px;color:var(--ink)}
+.tnote2{background:var(--ss);border-radius:14px 14px 14px 4px;padding:6px 10px;font-size:13.5px;line-height:1.5}
+.tcard .chips .chip{background:var(--paper);margin:2px 4px 0 0}
+.tcard .crew{margin-top:2px}
+.topen{font-size:12px;font-weight:700;color:var(--ink);opacity:.55;margin-top:2px}
+.topen.none{opacity:.45}
+.tcard.link:hover .topen{opacity:1}
+.tfabs{position:absolute;right:12px;bottom:12px;z-index:2;display:flex;flex-direction:column;gap:8px}
+.tfabs .mapfab{position:static}
+@media (prefers-reduced-motion:reduce){.tplane,.st-u .tstat{animation:none}}
 .stampbook .trips{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,320px),1fr));gap:14px}
 .legend{display:flex;gap:10px;flex-wrap:wrap;font-size:15px;font-weight:700;color:var(--ink);padding:14px 2px 0}
 .legend button{display:inline-flex;align-items:center;gap:8px;background:var(--paper);border:2.5px solid var(--edge);border-radius:999px;padding:5px 14px 5px 7px;box-shadow:2px 2px 0 var(--edge);font:inherit;font-weight:700;color:var(--ink);cursor:pointer;transition:transform .15s,box-shadow .15s,background .15s}
@@ -389,6 +427,9 @@ footer{font-size:11.5px;color:var(--muted);text-align:center;margin-top:18px}
   <section class="card panel stampbook" id="stampsView" aria-live="polite" hidden></section>
 </div>
 
+<div class="dlg" id="crewDlg" hidden role="dialog" aria-modal="true" aria-labelledby="crewTitle">
+  <div class="box" id="crewBox"></div>
+</div>
 <div class="dlg" id="adminDlg" hidden role="dialog" aria-modal="true" aria-labelledby="adminTitle">
   <div class="box">
     <h2 id="adminTitle" style="font-size:20px">🔑 管理模式</h2>
@@ -783,7 +824,38 @@ function showTip(ev, a, b){
 function hideTip(){ tip.style.display = "none"; }
 
 /* ---------- panel ---------- */
+const ST_COL = {v:["#FF8FB8","#FFE2ED"], u:["#FFD65A","#FFF4CC"], o:["#6FD9A8","#DBF6E9"], n:["#B6A3FF","#ECE6FF"]};
+function stampCard(t){
+  const s = tripStatus(t), c = byId.get(t.country), url = safeUrl(t.url);
+  const canEdit = state.canEdit !== false && !state.readOnly && state.db;
+  let badge = STATUS_TXT[s];
+  if (s === "u"){ const d = daysUntil(t.start); badge = d === 1 ? "明天出發！" : `倒數 ${d} 天`; }
+  const days = t.start ? Math.round((new Date((t.end || t.start) + "T00:00:00") - new Date(t.start + "T00:00:00")) / 864e5) + 1 : 0;
+  const cn = c ? c.n : t.country, en = c ? c.en : "";
+  const regs = (t.regions || []).map(r => `<span class="chip">📍 ${esc(r.n)}</span>`).join("");
+  const crewBtn = canEdit ? `<button class="mapfab crewfab" data-crew="${esc(t.id)}" aria-label="編輯${esc(t.title || "這趟")}的旅伴" title="編輯旅伴"><svg viewBox="0 0 24 24" fill="none" stroke="#2B2F55" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 19c.6-3.4 3-5.2 6-5.2s5.4 1.8 6 5.2"/><path d="M18 8v6M15 11h6"/></svg></button>` : "";
+  const mapBtn = `<button class="mapfab" data-go="${esc(t.country)}" aria-label="在地圖上看${esc(cn)}" title="看地圖"><svg viewBox="0 0 24 24" fill="none" stroke="#2B2F55" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4 3 6.5v13.5L9 17.5l6 2.5 6-2.5V4l-6 2.5z"/><path d="M9 4v13.5M15 6.5V20"/></svg></button>`;
+  return `<article class="tcard st-${s}${url ? " link" : ""}" style="--sc:${ST_COL[s][0]};--ss:${ST_COL[s][1]}">
+    ${url ? `<a class="cover" href="${esc(url)}" target="_blank" rel="noopener" aria-label="打開旅遊手冊：${esc(t.title || "未命名旅程")}"></a>` : ""}
+    <div class="th">
+      <span class="pm">${esc(cn.slice(0,1))}</span>
+      <div class="tc"><small>${esc(en.toUpperCase())}</small><b>${esc(cn)}</b></div>
+      <span class="tstat">${esc(badge)}</span>
+    </div>
+    <div class="tperf"><span class="tplane">✈</span></div>
+    <div class="tb">
+      <h3>${esc(t.title || "未命名旅程")}</h3>
+      <div class="tdate">🗓️ ${esc(fmtRange(t))}${days ? `<span class="tdays">${days} 天</span>` : ""}</div>
+      ${t.note ? `<div class="tnote2">💬 ${esc(t.note)}</div>` : ""}
+      ${regs ? `<div class="chips">${regs}</div>` : ""}
+      ${crewHtml(t)}
+      ${url ? `<div class="topen">📖 點卡片打開旅遊手冊</div>` : `<div class="topen none">還沒連結手冊</div>`}
+    </div>
+    <div class="tfabs">${crewBtn}${mapBtn}</div>
+  </article>`;
+}
 function tripCard(t, inCountry){
+  if (!inCountry) return stampCard(t);
   const s = tripStatus(t);
   const c = byId.get(t.country);
   const url = safeUrl(t.url);
@@ -793,11 +865,12 @@ function tripCard(t, inCountry){
   const canEdit = state.canEdit !== false && !state.readOnly && state.db;
   const delConfirm = state.confirmDel === t.id;
   const asLink = !inCountry && url;
-  const fab = !inCountry ? `<button class="mapfab" data-go="${esc(t.country)}" aria-label="在地圖上看${esc(c ? c.n : t.country)}" title="看地圖"><svg viewBox="0 0 24 24" fill="none" stroke="#2B2F55" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4 3 6.5v13.5L9 17.5l6 2.5 6-2.5V4l-6 2.5z"/><path d="M9 4v13.5M15 6.5V20"/></svg></button>` : "";
+  const crewBtn = !inCountry && canEdit ? `<button class="mapfab crewfab" data-crew="${esc(t.id)}" aria-label="編輯${esc(t.title || "這趟")}的旅伴" title="編輯旅伴"><svg viewBox="0 0 24 24" fill="none" stroke="#2B2F55" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 19c.6-3.4 3-5.2 6-5.2s5.4 1.8 6 5.2"/><path d="M18 8v6M15 11h6"/></svg></button>` : "";
+  const fab = !inCountry ? crewBtn + `<button class="mapfab" data-go="${esc(t.country)}" aria-label="在地圖上看${esc(c ? c.n : t.country)}" title="看地圖"><svg viewBox="0 0 24 24" fill="none" stroke="#2B2F55" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4 3 6.5v13.5L9 17.5l6 2.5 6-2.5V4l-6 2.5z"/><path d="M9 4v13.5M15 6.5V20"/></svg></button>` : "";
   const acts = (asLink ? "" : url ? `<a class="btn pink sm" href="${esc(url)}" target="_blank" rel="noopener">📖 打開旅遊手冊 ↗</a>` : `<span class="chip" style="background:var(--hair)">還沒連結手冊</span>`)
     + (inCountry && canEdit ? `<button class="btn sm" data-edit="${esc(t.id)}">✏️ 編輯</button>
         <button class="btn sm ${delConfirm ? "pink" : "ghost"}" data-del="${esc(t.id)}">${delConfirm ? "確定刪除？" : "刪除"}</button>` : "");
-  return `<article class="trip ${s}${asLink ? " link" : ""}${fab ? " hasfab" : ""}">
+  return `<article class="trip ${s}${asLink ? " link" : ""}${fab ? " hasfab" : ""}${crewBtn ? " twofab" : ""}">
     ${fab}
     ${asLink ? `<a class="cover" href="${esc(url)}" target="_blank" rel="noopener" aria-label="打開旅遊手冊：${esc(t.title || "未命名旅程")}"></a>` : ""}
     <span class="status ${s}">${esc(badge)}</span>
@@ -1044,6 +1117,7 @@ function showMap(){
 }
 document.querySelectorAll(".tab[data-view], .stat").forEach(b => b.addEventListener("click", () => b.dataset.view === "map" ? showMap() : showStamps(true, b.dataset.view)));
 $("#stampsView").addEventListener("click", e => {
+  const cb = e.target.closest("[data-crew]"); if (cb){ e.preventDefault(); openCrew(cb.dataset.crew); return; }
   const go = e.target.closest("[data-go]"); if (go){ openCountry(go.dataset.go); return; }
   if (e.target.closest("#compNew")){ state.compForm = {name: "", emoji: AVATARS[state.companions.length % AVATARS.length], _k:newKey()}; state.compErr = ""; renderPanel(); const i = document.querySelector('#compForm input[name="name"]'); if (i) i.focus(); return; }
   if (e.target.closest("#sortStart")){ state.sortIds = state.companions.map(c => c.id); state.compConfirmDel = null; renderPanel(); return; }
@@ -1364,6 +1438,52 @@ let rt; window.addEventListener("resize", () => { clearTimeout(rt); rt = setTime
   if (!relayout()) return;
   if (state.focus) zoomToBounds(mainBounds(byId.get(state.focus).f), 0); else svg.call(zoom.transform, homeT());
 }, 200); });
+
+/* ---------- edit companions of one trip ---------- */
+function openCrew(tripId){
+  const t = state.trips.find(x => x.id === tripId); if (!t) return;
+  state.crew = {id: tripId, ids: [...(t.companions || [])], saving: false, err: ""};
+  renderCrew(); $("#crewDlg").hidden = false;
+}
+function renderCrew(){
+  const c = state.crew; if (!c) return;
+  const t = state.trips.find(x => x.id === c.id) || {};
+  const qv = $("#crewQuick") ? $("#crewQuick").value : "";
+  $("#crewBox").innerHTML = `
+    <h2 id="crewTitle" style="font-size:20px">👫 這趟的旅伴</h2>
+    <p>${esc(t.title || "未命名旅程")}・${esc(fmtRange(t))}</p>
+    <div class="crewpick">
+      <span class="cchip" style="cursor:default;background:var(--sun-soft)"><span class="av me">我</span>我</span>
+      ${state.companions.map(p => `<button type="button" class="cchip" data-cp="${esc(p.id)}" aria-pressed="${c.ids.includes(p.id)}">${avatar(p)}${esc(p.name)}</button>`).join("")}
+    </div>
+    ${state.companions.length ? "" : `<p>還沒有旅伴，可以直接在下面新增。</p>`}
+    <div class="quick"><input id="crewQuick" maxlength="20" placeholder="新增旅伴名字" value="${esc(qv)}"><button type="button" class="btn sm sun" id="crewAdd">＋ 加入</button></div>
+    ${c.err ? `<div class="err">${esc(c.err)}</div>` : ""}
+    <div class="dlgacts"><button class="btn mint" id="crewSave" ${c.saving ? "disabled" : ""}>${c.saving ? "儲存中…" : "💾 儲存"}</button><button class="btn ghost" id="crewClose">取消</button></div>`;
+}
+async function crewQuickAdd(){
+  const q = $("#crewQuick"); const name = (q && q.value || "").trim(); if (!name) return;
+  const id = await createCompanion(name, AVATARS[state.companions.length % AVATARS.length]);
+  if (id && state.crew){ state.crew.ids.push(id); }
+  if (q) q.value = ""; renderCrew(); const q2 = $("#crewQuick"); if (q2) q2.focus();
+}
+$("#crewDlg").addEventListener("click", async e => {
+  const c = state.crew; if (!c) return;
+  if (e.target.id === "crewDlg" || e.target.closest("#crewClose")){ $("#crewDlg").hidden = true; state.crew = null; return; }
+  const b = e.target.closest("[data-cp]");
+  if (b){ const id = b.dataset.cp, i = c.ids.indexOf(id); if (i >= 0) c.ids.splice(i, 1); else c.ids.push(id); renderCrew(); return; }
+  if (e.target.closest("#crewAdd")){ crewQuickAdd(); return; }
+  if (e.target.closest("#crewSave")){
+    c.saving = true; c.err = ""; renderCrew();
+    try {
+      await state.db.collection("trips").doc(c.id).update({companions: c.ids.filter(id => compById(id)), updatedAt: new Date().toISOString()});
+      $("#crewDlg").hidden = true; state.crew = null; return;
+    } catch(err){ c.err = compErrText(err); }
+    c.saving = false; renderCrew();
+  }
+});
+$("#crewDlg").addEventListener("keydown", e => { if (e.target.id === "crewQuick" && e.key === "Enter"){ e.preventDefault(); crewQuickAdd(); } });
+document.addEventListener("keydown", e => { if (e.key === "Escape" && state.crew){ $("#crewDlg").hidden = true; state.crew = null; } });
 
 /* ---------- admin (GitHub token) ---------- */
 function renderAdmin(msg){
