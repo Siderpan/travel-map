@@ -231,7 +231,14 @@ form.cform input{border:2px solid var(--edge);border-radius:12px;padding:7px 10p
 .emojis button[aria-pressed="true"]{background:var(--sun);transform:rotate(-8deg) scale(1.08);box-shadow:2px 2px 0 var(--edge)}
 .stampbook .trips{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,320px),1fr));gap:14px}
 .legend{display:flex;gap:10px;flex-wrap:wrap;font-size:15px;font-weight:700;color:var(--ink);padding:14px 2px 0}
-.legend span{display:inline-flex;align-items:center;gap:8px;background:var(--paper);border:2.5px solid var(--edge);border-radius:999px;padding:5px 14px 5px 7px;box-shadow:2px 2px 0 var(--edge)}
+.legend button{display:inline-flex;align-items:center;gap:8px;background:var(--paper);border:2.5px solid var(--edge);border-radius:999px;padding:5px 14px 5px 7px;box-shadow:2px 2px 0 var(--edge);font:inherit;font-weight:700;color:var(--ink);cursor:pointer;transition:transform .15s,box-shadow .15s,background .15s}
+.legend button:hover{transform:translate(-1px,-2px);box-shadow:3px 4px 0 var(--edge)}
+.legend button:active{transform:translate(1px,1px);box-shadow:0 0 0 var(--edge)}
+.legend button[aria-pressed="true"]{background:var(--ink);color:var(--paper);transform:rotate(-2deg) translateY(-2px);box-shadow:3px 4px 0 var(--tang)}
+.legend button[aria-pressed="true"] i{border-color:var(--paper)}
+.legend{position:relative;align-items:center}
+.ltoast{font-size:13px;font-weight:700;color:var(--muted);opacity:0;transition:opacity .25s}
+.ltoast.show{opacity:1}
 .legend i{display:inline-block;width:22px;height:22px;border-radius:50%;border:2.5px solid var(--edge)}
 @media (max-width:600px){
   body{padding:0 10px 40px}
@@ -242,7 +249,8 @@ form.cform input{border:2px solid var(--edge);border-radius:12px;padding:7px 10p
   .tab{flex:1 0 auto;font-size:14px;padding:6px 12px}
   .stats{display:grid;grid-template-columns:1fr 1fr;gap:8px}
   .legend{font-size:14px;gap:8px}
-  .legend span{padding:4px 12px 4px 6px}
+  .legend button{padding:4px 12px 4px 6px}
+  .ltoast{flex-basis:100%}
   .legend i{width:19px;height:19px}
   .friends{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 10px}
   .friend{padding:0 10px 12px!important}
@@ -336,12 +344,13 @@ footer{font-size:11.5px;color:var(--muted);text-align:center;margin-top:18px}
           <button class="btn" id="zout" aria-label="縮小">－</button>
         </div>
       </div>
-      <div class="legend">
-        <span><i style="background:var(--pink)"></i>去過</span>
-        <span><i style="background:var(--sun)"></i>即將出發</span>
-        <span><i style="background:var(--mint)"></i>旅行中</span>
-        <span><i style="background:var(--lilac-soft)"></i>計畫中</span>
-        <span><i style="background:#FFF8EC"></i>還沒去</span>
+      <div class="legend" role="group" aria-label="依狀態查看">
+        <button type="button" data-st="v" aria-pressed="false"><i style="background:var(--pink)"></i>去過</button>
+        <button type="button" data-st="u" aria-pressed="false"><i style="background:var(--sun)"></i>即將出發</button>
+        <button type="button" data-st="o" aria-pressed="false"><i style="background:var(--mint)"></i>旅行中</button>
+        <button type="button" data-st="n" aria-pressed="false"><i style="background:var(--lilac-soft)"></i>計畫中</button>
+        <button type="button" data-st="x" aria-pressed="false"><i style="background:#FFF8EC"></i>還沒去</button>
+        <span class="ltoast" id="ltoast" role="status"></span>
       </div>
     </div>
     <aside class="card panel" id="panel" aria-live="polite" hidden></aside>
@@ -487,8 +496,9 @@ function drawWorld(){
 function paintWorld(){
   landG.selectAll("path")
     .attr("fill", d => { const s = countryStatus(d.id); return s ? STATUS_FILL[s] : UNVISITED; })
-    .classed("dim", d => state.focus && d.id !== state.focus);
-  shadowG.selectAll("path").classed("off", d => state.focus && d.id !== state.focus);
+    .classed("dim", d => isDim(d.id));
+  shadowG.selectAll("path").classed("off", d => isDim(d.id));
+  document.querySelectorAll(".legend button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.st === state.legendSt)));
 
   // markers & arcs
   const tripCountries = [...new Set(state.trips.map(t => t.country))].filter(id => byId.has(id));
@@ -611,10 +621,42 @@ function homeT(){
   const cy = (b[0][1] + b[1][1]) / 2;
   return d3.zoomIdentity.translate(W/2 - k*cx, (H+30)/2 - k*cy).scale(k);
 }
+/* ---------- legend filter ---------- */
+function statusKey(id){ return countryStatus(id) || "x"; }
+function isDim(id){
+  if (state.focus) return id !== state.focus;
+  if (state.legendSt && state.legendSt !== "x") return statusKey(id) !== state.legendSt;
+  return false;
+}
+let toastT;
+function legendToast(msg){ const t = $("#ltoast"); t.textContent = msg; t.classList.add("show"); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove("show"), 2600); }
+function showStatus(st){
+  if (state.legendSt === st){ state.legendSt = null; paintWorld(); svg.transition().duration(700).ease(d3.easeCubicInOut).call(zoom.transform, homeT()); return; }
+  const label = {v:"去過", u:"即將出發", o:"旅行中", n:"計畫中", x:"還沒去"}[st];
+  const ids = st === "x" ? [] : countries.filter(c => statusKey(c.id) === st).map(c => c.id);
+  if (st !== "x" && !ids.length){ legendToast(`目前沒有「${label}」的國家`); return; }
+  if (state.focus || state.view !== "map"){
+    state.focus = null; state.editing = null; state.confirmDel = null; state.view = "map";
+    setHash(""); $("#backBtn").hidden = true; $("#crumb").innerHTML = ""; $("#editbar").style.display = "none";
+    setLayout(); relayout(); drawRegions(); renderPanel();
+  }
+  state.legendSt = st;
+  paintWorld();
+  const card = $("#mapcard").getBoundingClientRect();
+  if (card.top < 0) window.scrollTo({top: window.scrollY + card.top - 12, behavior: "smooth"});
+  if (st === "x"){ legendToast("還沒去的地方，都在等你蓋章！"); svg.transition().duration(800).ease(d3.easeCubicInOut).call(zoom.transform, homeT()); return; }
+  let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+  ids.forEach(id => { const b = mainBounds(byId.get(id).f); x0 = Math.min(x0, b[0][0]); y0 = Math.min(y0, b[0][1]); x1 = Math.max(x1, b[1][0]); y1 = Math.max(y1, b[1][1]); });
+  const pad = Math.max(x1 - x0, y1 - y0) * 0.25 + 4;
+  zoomToBounds([[x0 - pad, y0 - pad], [x1 + pad, y1 + pad]]);
+  legendToast(`${label}：${ids.map(id => byId.get(id).n).join("、")}`);
+}
+document.querySelector(".legend").addEventListener("click", e => { const b = e.target.closest("button[data-st]"); if (b && countries.length) showStatus(b.dataset.st); });
+
 async function openCountry(id, push = true){
   const c = byId.get(id); if (!c) return;
   if (state.editing && state.editing.country !== id) state.editing = null;
-  state.focus = id; state.confirmDel = null; state.view = "map";
+  state.focus = id; state.confirmDel = null; state.view = "map"; state.legendSt = null;
   if (push && location.hash !== "#"+id) setHash(id);
   $("#backBtn").hidden = false;
   $("#crumb").innerHTML = `<span class="name">${esc(c.n)}</span>`;
@@ -625,7 +667,7 @@ async function openCountry(id, push = true){
   if (state.focus === id){ drawRegions(); renderPanel(); }
 }
 function backToWorld(){
-  state.focus = null; state.editing = null; state.confirmDel = null;
+  state.focus = null; state.editing = null; state.confirmDel = null; state.legendSt = null;
   state.view = "map";
   if (location.hash) setHash("");
   $("#backBtn").hidden = true; $("#crumb").innerHTML = ""; $("#editbar").style.display = "none";
@@ -1201,8 +1243,9 @@ async function boot(){
 $("#backBtn").addEventListener("click", backToWorld);
 $("#homeLink").addEventListener("click", e => {
   e.preventDefault();
+  state.legendSt = null;
   if (state.focus) backToWorld();
-  else { showMap(); svg.transition().duration(600).ease(d3.easeCubicInOut).call(zoom.transform, homeT()); }
+  else { showMap(); paintWorld(); svg.transition().duration(600).ease(d3.easeCubicInOut).call(zoom.transform, homeT()); }
   window.scrollTo({top: 0, behavior: "smooth"});
 });
 $("#zin").addEventListener("click", () => svg.transition().duration(300).call(zoom.scaleBy, 1.6));
