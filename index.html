@@ -128,8 +128,15 @@ header .sub{font-size:13px;color:var(--muted);margin-top:2px}
 .dlg[hidden]{display:none}
 .dlg .box{width:min(460px,100%);background:var(--paper);border:2.5px solid var(--edge);border-radius:22px;box-shadow:var(--shadow-lg);padding:18px;display:flex;flex-direction:column;gap:12px}
 .dlg .box p{margin:0;font-size:13.5px;color:var(--muted)}
-.dlg .box ol{margin:0;padding-left:20px;font-size:13px;color:var(--muted)}
-.dlg input{border:2px solid var(--edge);border-radius:12px;padding:8px 10px;font-size:14px;width:100%}
+.dlg .box{max-height:calc(100vh - 32px);overflow-y:auto;gap:14px!important}
+.steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px;counter-reset:st}
+.steps li{position:relative;padding:10px 12px 10px 46px;background:var(--sky-soft);border:2px solid var(--edge);border-radius:14px;font-size:13.5px;line-height:1.6;color:var(--ink);counter-increment:st}
+.steps li::before{content:counter(st);position:absolute;left:10px;top:9px;width:26px;height:26px;border-radius:50%;border:2px solid var(--edge);background:var(--sun);display:grid;place-items:center;font-family:var(--f-pop);font-size:13px}
+.steps li .btn{margin-top:8px;display:flex;width:max-content}
+.steps code,.dlg p code{background:var(--paper);border:1.5px solid var(--hair);border-radius:6px;padding:0 5px;font-size:12.5px}
+.tokfield{display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:700;margin-top:4px}
+.dlg input{border:2.5px solid var(--edge);border-radius:12px;padding:10px 12px;font-size:15px;width:100%;background:var(--paper)}
+.dlgacts{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;padding-top:14px;border-top:2px dashed var(--hair)}
 .right{display:flex;flex-direction:column;align-items:flex-end;gap:10px}
 @media (max-width:640px){.right{align-items:flex-start}}
 @media (min-width:980px){.main.solo{grid-template-columns:minmax(0,1fr)}}
@@ -1215,16 +1222,19 @@ function renderAdmin(msg){
   $("#adminBody").innerHTML = t ? `
     <p>✅ 這個瀏覽器已開啟管理模式，可以新增、修改旅程與旅伴。每次儲存都會寫進 GitHub 上的資料檔，網站約 1 分鐘後更新。</p>
     ${msg ? `<div class="err">${esc(msg)}</div>` : ""}
-    <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn pink" id="adminLogout">登出管理模式</button><button class="btn ghost" id="adminClose">關閉</button></div>` : `
-    <p>網站給所有人瀏覽；只有輸入 GitHub 金鑰的人可以修改資料。金鑰只存在這台裝置的瀏覽器裡，不會上傳到任何地方。</p>
-    <ol>
-      <li>到 GitHub → Settings → Developer settings → Fine-grained tokens 產生新金鑰</li>
-      <li>Repository access 只選 <b>${GH.owner}/${GH.repo}</b></li>
-      <li>Permissions → Contents 設為 <b>Read and write</b></li>
+    <div class="dlgacts"><button class="btn pink" id="adminLogout">登出管理模式</button><button class="btn ghost" id="adminClose">關閉</button></div>` : `
+    <p>想新增或修改旅程，需要一把 GitHub「金鑰」證明你是這個網站的主人。只要做一次，金鑰只存在這台裝置的瀏覽器裡。</p>
+    <ol class="steps">
+      <li><b>打開 GitHub 的產生金鑰頁面</b>（要先登入 GitHub）
+        <a class="btn sky sm" href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">開啟金鑰頁面 ↗</a></li>
+      <li><b>Token name</b> 隨便取個名字，例如「旅行地圖」。<br><b>Expiration</b>（有效期限）選久一點，到期後再回來換一把。</li>
+      <li><b>Repository access</b> 選「Only select repositories」，再從下拉選單選 <code>${GH.repo}</code>。</li>
+      <li>往下找到 <b>Permissions</b> → <b>Repository permissions</b> → <b>Contents</b>，把右邊的選單改成「Read and write」。</li>
+      <li>拉到最下面按綠色的 <b>Generate token</b>，複製 <code>github_pat_</code> 開頭的那一長串，貼到下面。</li>
     </ol>
-    <input id="tokenInput" type="password" autocomplete="off" placeholder="貼上 github_pat_… 金鑰">
+    <label class="tokfield">貼上金鑰<input id="tokenInput" type="password" autocomplete="off" placeholder="github_pat_…"></label>
     ${msg ? `<div class="err">${esc(msg)}</div>` : ""}
-    <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn mint" id="adminSave">開啟管理模式</button><button class="btn ghost" id="adminClose">關閉</button></div>`;
+    <div class="dlgacts"><button class="btn mint" id="adminSave">開啟管理模式</button><button class="btn ghost" id="adminClose">關閉</button></div>`;
 }
 $("#adminBtn").addEventListener("click", () => { renderAdmin(); $("#adminDlg").hidden = false; const i = $("#tokenInput"); if (i) i.focus(); });
 $("#adminDlg").addEventListener("click", async e => {
