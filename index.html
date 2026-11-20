@@ -129,7 +129,35 @@ header .sub{font-size:13px;color:var(--muted);margin-top:2px}
 .clabel{font-family:var(--f-display);font-size:13px;fill:var(--ink);paint-order:stroke;stroke:#fff;stroke-width:4px;stroke-linejoin:round;text-anchor:middle;pointer-events:none}
 .cloud{position:absolute;z-index:2;pointer-events:none;opacity:.9;animation:drift linear infinite}
 @keyframes drift{from{transform:translateX(-140px)}to{transform:translateX(calc(100vw + 140px))}}
-@media (prefers-reduced-motion:reduce){.cloud,.marker .bob{animation:none}.cloud{display:none}}
+
+/* ---------- cute ocean decorations ---------- */
+.deco{pointer-events:none}
+.deco .a{transform-box:fill-box;transform-origin:center}
+.d-bob{animation:dbob 3s ease-in-out infinite}
+@keyframes dbob{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+.d-spout{transform-origin:50% 100%!important;animation:spout 2.8s ease-out infinite}
+@keyframes spout{0%,45%{transform:scale(.2,0);opacity:0}55%{opacity:1}70%{transform:scale(1,1);opacity:1}100%{transform:scale(1.15,1.05);opacity:0}}
+.d-rock{transform-origin:50% 90%!important;animation:rock 3.4s ease-in-out infinite}
+@keyframes rock{0%,100%{transform:rotate(-7deg)}50%{transform:rotate(7deg) translateX(3px)}}
+.d-jump{animation:jump 3.2s ease-in-out infinite}
+@keyframes jump{0%,55%{transform:translate(-14px,10px) rotate(-50deg);opacity:0}60%{opacity:1;transform:translate(-12px,4px) rotate(-45deg)}75%{transform:translate(0,-16px) rotate(0)}90%{transform:translate(12px,4px) rotate(45deg);opacity:1}95%,100%{transform:translate(14px,10px) rotate(50deg);opacity:0}}
+.d-splash{animation:splash 3.2s ease-out infinite}
+@keyframes splash{0%,58%{transform:scale(.2);opacity:0}62%{opacity:.9}74%{transform:scale(1.2);opacity:0}86%{transform:scale(.2);opacity:0}91%{opacity:.9}100%{transform:scale(1.2);opacity:0}}
+.d-sway{transform-origin:50% 0!important;animation:sway 5s ease-in-out infinite}
+@keyframes sway{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-8px) rotate(4deg)}}
+.d-wave{animation:wave 2.6s ease-in-out infinite}
+@keyframes wave{0%,100%{transform:translateX(-3px);opacity:.55}50%{transform:translateX(3px);opacity:1}}
+.d-flap{animation:flap .5s ease-in-out infinite alternate}
+@keyframes flap{from{transform:scaleY(1)}to{transform:scaleY(-.4)}}
+.d-drift{animation:drift2 9s ease-in-out infinite}
+@keyframes drift2{0%,100%{transform:translate(-10px,0)}50%{transform:translate(12px,-6px)}}
+.d-wiggle{transform-origin:50% 0!important;animation:wiggle 1.4s ease-in-out infinite alternate}
+@keyframes wiggle{from{transform:skewX(-10deg)}to{transform:skewX(10deg)}}
+.d-paddle{animation:paddle 1.2s ease-in-out infinite alternate}
+@keyframes paddle{from{transform:rotate(-18deg)}to{transform:rotate(18deg)}}
+.d-swim{animation:swim 7s ease-in-out infinite}
+@keyframes swim{0%,100%{transform:translateX(-8px)}50%{transform:translateX(8px)}}
+@media (prefers-reduced-motion:reduce){.cloud,.marker .bob,.deco *{animation:none!important}.cloud{display:none}}
 .tip{position:absolute;z-index:5;pointer-events:none;background:var(--paper);border:2px solid var(--edge);border-radius:12px;padding:4px 10px;font-size:13px;font-weight:700;box-shadow:2px 2px 0 var(--edge);white-space:nowrap;transform:translate(-50%,calc(-100% - 12px));display:none}
 .tip small{font-weight:500;color:var(--muted);margin-left:4px}
 .crumb{position:absolute;z-index:4;left:10px;bottom:10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;max-width:calc(100% - 70px)}
@@ -443,6 +471,67 @@ const landG = zoomG.append("g").attr("class","land");
 const regShadowG = zoomG.append("g").attr("class","shadow");
 const regionG = zoomG.append("g").attr("class","regions");
 const arcG = zoomG.append("g");
+/* ---------- cute decorations (fixed size, placed by lon/lat) ---------- */
+const decoG = zoomG.insert("g", () => arcG.node()).attr("class","deco");
+const I = "#2B2F55", SW = 'stroke="#2B2F55" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"';
+const WAVE = `<path d="M-14,0 q3.5,-4 7,0 t7,0 t7,0 t7,0" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/>`;
+const DECOS = [
+  {ll:[-150, 24], s:1.1, svg:`<ellipse cx="0" cy="15" rx="28" ry="4.5" fill="none" stroke="#fff" stroke-width="2.4"/>
+    <g class="a d-bob">
+      <g class="a d-spout"><path d="M-12,-14 q-3,-9 -10,-11 M-12,-14 q0,-10 0,-14 M-12,-14 q3,-9 10,-11" fill="none" stroke="#5FB4FF" stroke-width="3" stroke-linecap="round"/><circle cx="-23" cy="-26" r="2" fill="#5FB4FF"/><circle cx="-1" cy="-26" r="2" fill="#5FB4FF"/></g>
+      <path d="M-26,2 C-26,-15 4,-17 14,-6 C17,-3 19,-4 24,-11 C27,-4 27,3 21,6 C27,8 27,14 23,17 C19,11 16,11 12,10 C3,17 -26,17 -26,2Z" fill="#8EC9FF" ${SW}/>
+      <path d="M-23,7 C-14,13 2,13 10,9" fill="none" stroke="${I}" stroke-width="1.6" opacity=".45"/>
+      <circle cx="-15" cy="-2" r="2.2" fill="${I}"/><ellipse cx="-10" cy="3.5" rx="3.2" ry="1.9" fill="#FF8FB8"/>
+    </g>`},
+  {ll:[-38, 27], s:1, svg:`<g class="a d-rock">
+      <path d="M0,6 V-22" stroke="${I}" stroke-width="2.4"/>
+      <path d="M2,-20 L17,4 L2,4Z" fill="#fff" ${SW}/><path d="M-2,-15 L-14,4 L-2,4Z" fill="#FFD65A" ${SW}/>
+      <path d="M0,-22 L9,-19 L0,-16Z" fill="#FF8FB8" ${SW}/>
+      <path d="M-18,6 L18,6 L12,14 L-12,14Z" fill="#FF8A4C" ${SW}/><circle cx="-5" cy="10" r="1.6" fill="#fff"/><circle cx="3" cy="10" r="1.6" fill="#fff"/>
+    </g><g class="a d-wave" transform="translate(0,17)">${WAVE}</g>`},
+  {ll:[78, -16], s:1, svg:`<g class="a d-splash"><ellipse cx="-12" cy="9" rx="7" ry="2.4" fill="none" stroke="#fff" stroke-width="2.2"/></g>
+    <g class="a d-splash" style="animation-delay:.5s"><ellipse cx="12" cy="9" rx="7" ry="2.4" fill="none" stroke="#fff" stroke-width="2.2"/></g>
+    <g class="a d-jump"><path d="M-9,0 C-5,-7 6,-7 10,0 C6,7 -5,7 -9,0Z M-9,0 L-16,-6 L-14,0 L-16,6Z" fill="#FFD65A" ${SW}/><circle cx="5" cy="-1.5" r="1.6" fill="${I}"/><path d="M-2,-4 q2,4 0,8" fill="none" stroke="${I}" stroke-width="1.4" opacity=".5"/></g>`},
+  {ll:[163, -27], s:1, svg:`<g class="a d-swim"><g class="a d-bob">
+      <g class="a d-paddle" style="transform-origin:-8px 0"><ellipse cx="-12" cy="-9" rx="6" ry="3" fill="#6FD9A8" ${SW} transform="rotate(-30 -12 -9)"/></g>
+      <g class="a d-paddle" style="transform-origin:-8px 0;animation-delay:.6s"><ellipse cx="-12" cy="9" rx="6" ry="3" fill="#6FD9A8" ${SW} transform="rotate(30 -12 9)"/></g>
+      <ellipse cx="9" cy="-8" rx="5" ry="2.6" fill="#6FD9A8" ${SW} transform="rotate(30 9 -8)"/><ellipse cx="9" cy="8" rx="5" ry="2.6" fill="#6FD9A8" ${SW} transform="rotate(-30 9 8)"/>
+      <circle cx="17" cy="0" r="6" fill="#6FD9A8" ${SW}/><circle cx="19" cy="-2" r="1.4" fill="${I}"/>
+      <ellipse cx="0" cy="0" rx="13" ry="10" fill="#FFD65A" ${SW}/><path d="M-6,-6 L0,0 L6,-6 M0,0 V9 M-9,3 L-3,3 M3,3 L9,3" fill="none" stroke="${I}" stroke-width="1.6" opacity=".6"/>
+    </g></g>`},
+  {ll:[12, 20], s:1, svg:`<g class="a d-sway">
+      <path d="M-6,10 L-4,18 M6,10 L4,18" stroke="${I}" stroke-width="1.8"/>
+      <path d="M0,-22 C16,-22 18,-4 6,10 L-6,10 C-18,-4 -16,-22 0,-22Z" fill="#FF8FB8" ${SW}/>
+      <path d="M0,-22 C6,-14 6,0 3,10 M0,-22 C-6,-14 -6,0 -3,10" fill="none" stroke="${I}" stroke-width="1.8"/>
+      <path d="M-1,-22 C-4,-12 -4,0 -2,10 L2,10 C4,0 4,-12 1,-22Z" fill="#FFD65A"/>
+      <rect x="-5" y="18" width="10" height="7" rx="2" fill="#C98B55" ${SW}/>
+    </g>`},
+  {ll:[-118, -30], s:1, svg:`<g class="a d-bob">
+      <g class="a d-wiggle"><path d="M-10,4 q-3,8 -8,10 M-4,6 q-1,8 -4,12 M4,6 q1,8 4,12 M10,4 q3,8 8,10" fill="none" stroke="#B6A3FF" stroke-width="5" stroke-linecap="round"/>
+      <path d="M-10,4 q-3,8 -8,10 M-4,6 q-1,8 -4,12 M4,6 q1,8 4,12 M10,4 q3,8 8,10" fill="none" stroke="${I}" stroke-width="1.4" stroke-linecap="round" opacity=".5"/></g>
+      <path d="M-13,6 C-15,-14 15,-14 13,6 C8,9 -8,9 -13,6Z" fill="#B6A3FF" ${SW}/>
+      <circle cx="-5" cy="-2" r="2" fill="${I}"/><circle cx="5" cy="-2" r="2" fill="${I}"/><path d="M-2,3 q2,2 4,0" fill="none" stroke="${I}" stroke-width="1.6" stroke-linecap="round"/>
+      <ellipse cx="-8" cy="2" rx="2.4" ry="1.4" fill="#FF8FB8"/><ellipse cx="8" cy="2" rx="2.4" ry="1.4" fill="#FF8FB8"/>
+    </g>`},
+  {ll:[138, 21], s:.9, svg:`<g class="a d-drift">
+      <g class="a d-flap"><path d="M-12,0 q3,-5 6,0 q3,-5 6,0" fill="none" stroke="${I}" stroke-width="2.2" stroke-linecap="round"/></g>
+      <g class="a d-flap" style="animation-delay:.25s" transform="translate(10,-8)"><path d="M-6,0 q3,-5 6,0 q3,-5 6,0" fill="none" stroke="${I}" stroke-width="2.2" stroke-linecap="round"/></g>
+    </g>`},
+  ...[[-170,-8],[-62,-42],[42,-42],[140,12],[-22,-6],[-45,52],[100,-35],[-95,5]].map((ll,i) => ({ll, s:.9, svg:`<g class="a d-wave" style="animation-delay:${i*.35}s">${WAVE}</g>`}))
+];
+function drawDecos(){
+  decoG.selectAll("g.dz").data(DECOS).join(enter => {
+    const g = enter.append("g").attr("class","dz");
+    g.html(d => d.svg);
+    return g;
+  }).each(function(d){ d.p = projection(d.ll); });
+  placeDecos();
+}
+function placeDecos(){
+  const m = W < 640 ? .8 : 1;
+  decoG.selectAll("g.dz").attr("transform", d => `translate(${d.p[0]},${d.p[1]}) scale(${d.s * m / K})`);
+  decoG.style("display", state.focus ? "none" : null);
+}
 const labelG = zoomG.append("g");
 const markerG = zoomG.append("g");
 
@@ -472,6 +561,7 @@ function onZoomScale(){
     d3.select(this).attr("font-size", (d.hit ? 13 : 11.5)/K).attr("stroke-width", 3/K).attr("display", show ? null : "none");
   });
   arcG.selectAll(".plane").attr("transform", `rotate(90) scale(${1/K})`);
+  if (typeof placeDecos === "function" && DECOS[0].p) placeDecos();
 }
 
 function sizeMap(){
@@ -486,6 +576,7 @@ function sizeMap(){
 }
 
 function drawWorld(){
+  drawDecos();
   sphereP.attr("d", path({type:"Sphere"}));
   gratP.attr("d", path(d3.geoGraticule10()));
   shadowG.selectAll("path").data(countries, d => d.id).join("path").attr("d", d => path(d.f));
@@ -527,6 +618,7 @@ function paintWorld(){
     anim.appendChild(mp); am.node().appendChild(anim);
   });
   arcG.style("display", state.focus ? "none" : null);
+  decoG.style("display", state.focus ? "none" : null);
 
   const m = markerG.selectAll(".marker").data(all, d => d.id).join(enter => {
     const g = enter.append("g").attr("class","marker");
@@ -1217,7 +1309,7 @@ async function initDb(){
 /* ---------- clouds ---------- */
 function clouds(){
   const card = $("#mapcard");
-  const cloud = w => `<svg width="${w}" viewBox="0 0 80 40"><path d="M14 34h52a12 12 0 0 0 0-24 16 16 0 0 0-30-4A13 13 0 0 0 14 34z" fill="#fff" stroke="#2B2F55" stroke-width="2.5" stroke-linejoin="round"/></svg>`;
+  const cloud = w => `<svg width="${w}" viewBox="0 -16 80 56" overflow="visible"><path d="M14 34h52a12 12 0 0 0 0-24 16 16 0 0 0-30-4A13 13 0 0 0 14 34z" fill="#fff" stroke="#2B2F55" stroke-width="2.5" stroke-linejoin="round"/></svg>`;
   [[70,"18%",48,-8],[54,"62%",64,-30],[44,"40%",80,-55]].forEach(([w, top, dur, delay]) => {
     const d = document.createElement("div"); d.className = "cloud"; d.style.top = top; d.style.left = "0";
     d.style.animationDuration = dur + "s"; d.style.animationDelay = delay + "s"; d.innerHTML = cloud(w); card.appendChild(d);
