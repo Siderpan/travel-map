@@ -3,7 +3,21 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Q版旅行足跡地圖</title>
+<title>我的旅行足跡地圖</title>
+<meta name="description" content="Q 版世界地圖：點國家放大看區域，每一本旅遊手冊就是一枚印章，記錄去過的國家與旅伴。">
+<meta name="theme-color" content="#E8F3FF">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="icons/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="manifest" href="site.webmanifest">
+<meta property="og:type" content="website">
+<meta property="og:title" content="我的旅行足跡地圖">
+<meta property="og:description" content="點國家放大看區域・每一本旅遊手冊就是一枚印章">
+<meta property="og:url" content="https://siderpan.github.io/travel-map/">
+<meta property="og:image" content="https://siderpan.github.io/travel-map/icons/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Huninn&family=Mochiy+Pop+One&family=Noto+Sans+TC:wght@400;500;700;900&display=swap">
@@ -281,14 +295,7 @@ footer{font-size:11.5px;color:var(--muted);text-align:center;margin-top:18px}
 <div class="wrap">
   <header>
     <a class="brand" id="homeLink" href="#" title="回到世界地圖">
-      <svg class="globe" viewBox="0 0 64 64" aria-hidden="true">
-        <circle cx="32" cy="32" r="28" fill="#8EC9FF" stroke="#2B2F55" stroke-width="3"/>
-        <path d="M14 22c6-3 9 2 14 0s4-8 10-7 6 6 2 9-9 2-10 7 5 6 3 10-8 2-10-2-3-7-8-8-4-6-1-9z" fill="#6FD9A8" stroke="#2B2F55" stroke-width="2.5" stroke-linejoin="round"/>
-        <path d="M42 38c4-1 8 1 9 4s-2 7-5 7-6-2-6-5 0-5 2-6z" fill="#FFD65A" stroke="#2B2F55" stroke-width="2.5"/>
-        <circle cx="25" cy="44" r="2.2" fill="#2B2F55"/><circle cx="37" cy="44" r="2.2" fill="#2B2F55"/>
-        <path d="M28 49q3 3 6 0" fill="none" stroke="#2B2F55" stroke-width="2.2" stroke-linecap="round"/>
-        <ellipse cx="20" cy="48" rx="3" ry="2" fill="#FF8FB8" opacity=".8"/><ellipse cx="42" cy="48" rx="3" ry="2" fill="#FF8FB8" opacity=".8"/>
-      </svg>
+      <img class="globe" src="icons/logo.svg" alt="" width="62" height="62">
       <div>
         <span class="sticker">MY TRAVEL STAMPS</span>
         <h1>我的<span class="hl">旅行足跡</span>地圖</h1>
@@ -316,7 +323,7 @@ footer{font-size:11.5px;color:var(--muted);text-align:center;margin-top:18px}
           <button class="btn sky" id="backBtn" hidden>← 回世界地圖</button>
           <div class="search">
             <svg viewBox="0 0 24 24" fill="none" stroke="#2B2F55" stroke-width="2.6" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/></svg>
-            <input id="q" list="countryList" placeholder="找國家，例如：日本" aria-label="搜尋國家">
+            <input id="q" type="search" name="country-search" list="countryList" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="找國家，例如：日本" aria-label="搜尋國家">
             <datalist id="countryList"></datalist>
           </div>
         </div>
@@ -354,10 +361,11 @@ footer{font-size:11.5px;color:var(--muted);text-align:center;margin-top:18px}
 (() => {
 "use strict";
 const HOME = "TWN";
-const CONT = {"Asia":"#FFE7D8","Europe":"#ECE6FF","Africa":"#FFF4CC","North America":"#DBF6E9","South America":"#FFE2ED","Oceania":"#FFF8EC","Seven seas (open ocean)":"#FFF8EC","Antarctica":"#FFFFFF"};
+// 還沒去的國家一律用同一個奶油色，顏色只用來表示旅行狀態（與圖例一致）
+const UNVISITED = "#FFF8EC";
 const STATUS_FILL = {v:"#FF8FB8",u:"#FFD65A",o:"#6FD9A8",n:"#ECE6FF"};
 const STATUS_TXT = {v:"去過",u:"即將出發",o:"旅行中",n:"計畫中"};
-const REGION_FILLS = ["#FFF8EC","#FFF4CC","#FFE7D8","#ECE6FF","#DBF6E9","#DCEEFF"];
+const REGION_FILLS = ["#FFF8EC","#F7EEDD","#FDF3E4"];
 
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -478,7 +486,7 @@ function drawWorld(){
 
 function paintWorld(){
   landG.selectAll("path")
-    .attr("fill", d => { const s = countryStatus(d.id); return s ? STATUS_FILL[s] : (CONT[d.c] || "#FFF8EC"); })
+    .attr("fill", d => { const s = countryStatus(d.id); return s ? STATUS_FILL[s] : UNVISITED; })
     .classed("dim", d => state.focus && d.id !== state.focus);
   shadowG.selectAll("path").classed("off", d => state.focus && d.id !== state.focus);
 
