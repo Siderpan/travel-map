@@ -70,6 +70,7 @@ header .sub{font-size:13px;color:var(--muted);margin-top:2px}
 .ctile:hover{transform:translate(-3px,-4px) rotate(-.6deg);box-shadow:6px 7px 0 var(--edge)}
 .ctile:active{transform:translate(1px,1px);box-shadow:1px 1px 0 var(--edge)}
 .ctile h3{font-size:18px}
+.homechip{display:inline-block;vertical-align:3px;font-family:var(--f-body);font-size:11.5px;font-weight:700;padding:1px 8px;border-radius:999px;border:2px solid var(--edge);background:var(--sky-soft)}
 .ctile small{display:block;font-size:12px;color:var(--muted);font-weight:700}
 .rgroup{border:2.5px solid var(--edge);border-radius:18px;padding:12px 14px;background:var(--paper);box-shadow:2px 2px 0 var(--edge)}
 .rgroup h3{display:flex;align-items:center;gap:8px;font-size:18px}
@@ -412,6 +413,7 @@ function fmtRange(t){
 }
 function countryStatus(id){
   const ts = state.trips.filter(t => t.country === id);
+  if (id === HOME) return ts.some(t => tripStatus(t) === "o") ? "o" : "v";   // 出生地：一定算去過
   if (!ts.length) return null;
   const ss = ts.map(tripStatus);
   for (const k of ["o","v","u","n"]) if (ss.includes(k)) return k;
@@ -490,7 +492,7 @@ function drawWorld(){
   landG.selectAll("path").data(countries, d => d.id).join("path")
     .attr("d", d => path(d.f))
     .on("click", (ev, d) => { ev.stopPropagation(); if (state.editing && state.focus === d.id) return; openCountry(d.id); })
-    .on("mousemove", (ev, d) => showTip(ev, d.n, d.n !== d.en ? d.en : ""))
+    .on("mousemove", (ev, d) => showTip(ev, d.n, d.alias ? d.alias + "・" + d.en : (d.n !== d.en ? d.en : "")))
     .on("mouseleave", hideTip);
   paintWorld();
 }
@@ -780,7 +782,7 @@ function renderPanelInner(){
     P.innerHTML = `
       <div class="ptitle">
         <div class="seal ${s || "n"}">${esc((c.n||c.en).slice(0,1))}</div>
-        <div><span class="kana">${esc(c.en.toUpperCase())}</span><h2>${esc(c.n)}</h2></div>
+        <div><span class="kana">${esc(c.en.toUpperCase())}${c.alias ? "・" + esc(c.alias) : ""}</span><h2>${esc(c.n)}${state.focus === HOME ? ` <span class="homechip">🏠 出生地</span>` : ""}</h2></div>
       </div>
       ${dbNote}
       ${total ? `<div class="note">這裡有 <b>${total}</b> 個區域，目前點亮 <b>${hits.size}</b> 個${hits.size ? "（地圖上的 ★）" : ""}。</div>` :
@@ -857,7 +859,8 @@ function renderListView(dbNote){
   } else if (v === "countries"){
     const m = new Map();
     doneTrips().forEach(t => { if (!m.has(t.country)) m.set(t.country, []); m.get(t.country).push(t); });
-    const ids = [...m.keys()].filter(id => byId.has(id)).sort((a,b) => byId.get(a).n.localeCompare(byId.get(b).n, "zh-Hant"));
+    if (byId.has(HOME) && !m.has(HOME)) m.set(HOME, []);
+    const ids = [...m.keys()].filter(id => byId.has(id)).sort((a,b) => (a === HOME ? -1 : b === HOME ? 1 : byId.get(a).n.localeCompare(byId.get(b).n, "zh-Hant")));
     head = `<span class="kana">COUNTRIES</span><h2>去過的國家・${ids.length} 國</h2>`;
     body = ids.length ? `<div class="ctiles">${ids.map(id => {
       const c = byId.get(id), ts = m.get(id);
@@ -865,7 +868,7 @@ function renderListView(dbNote){
       const last = ts.map(t => t.end || t.start).sort().pop();
       return `<button class="ctile" data-go="${esc(id)}">
         <span class="seal ${countryStatus(id) || "v"}">${esc(c.n.slice(0,1))}</span>
-        <span><h3>${esc(c.n)}</h3><small>${esc(c.en)}</small><small>${ts.length} 趟旅程・${rs.size} 個區域${last ? "・最近 " + esc(last.slice(0,7).replace("-","/")) : ""}</small></span>
+        <span><h3>${esc(c.n)}${id === HOME ? ` <span class="homechip">🏠 出生地</span>` : ""}</h3><small>${esc(c.alias ? c.alias + "・" + c.en : c.en)}</small><small>${id === HOME && !ts.length ? "我的家鄉" : `${ts.length} 趟旅程・${rs.size} 個區域${last ? "・最近 " + esc(last.slice(0,7).replace("-","/")) : ""}`}</small></span>
       </button>`; }).join("")}</div>` :
       `<div class="empty"><div class="big">🌏</div>還沒有去過的國家。<br>旅程回程日過了之後，國家就會出現在這裡。</div>`;
   } else if (v === "friends"){
@@ -1103,7 +1106,7 @@ function applyTrips(docs){
 }
 function updateStats(){
   const done = state.trips.filter(t => ["v","o"].includes(tripStatus(t)));
-  $("#sCountries").textContent = new Set(done.map(t => t.country)).size;
+  $("#sCountries").textContent = new Set(done.map(t => t.country).concat(HOME)).size;
   $("#sUpcoming").textContent = state.trips.filter(t => tripStatus(t) === "u").length;
 }
 
@@ -1233,11 +1236,13 @@ async function boot(){
     .filter(f => f.properties.id !== "ATA")
     .map(f => ({id: f.properties.id, n: f.properties.n || f.properties.en, en: f.properties.en, c: f.properties.c, lx: f.properties.lx, ly: f.properties.ly, f}));
   countries.forEach(c => { c.f.id = c.id; byId.set(c.id, c); });
+  const tw = byId.get("TWN"); if (tw){ tw.n = "台灣"; tw.alias = "中華民國"; }
+  updateStats();
   drawWorld();
   svg.call(zoom.transform, homeT());
   loadHiRes();
   clouds();
-  $("#countryList").innerHTML = [...countries].sort((a,b) => a.n.localeCompare(b.n, "zh-Hant")).map(c => `<option value="${esc(c.n)}">${esc(c.en)}</option>`).join("");
+  $("#countryList").innerHTML = [...countries].sort((a,b) => a.n.localeCompare(b.n, "zh-Hant")).map(c => `<option value="${esc(c.n)}">${esc(c.alias ? c.alias + "・" + c.en : c.en)}</option>` + (c.alias ? `<option value="${esc(c.alias)}">${esc(c.n)}</option>` : "")).join("");
   const h = location.hash.slice(1);
   if (byId.has(h)) openCountry(h, false);
   else if (LIST_VIEWS.includes(h)) showStamps(false, h);
@@ -1254,7 +1259,7 @@ $("#zin").addEventListener("click", () => svg.transition().duration(300).call(zo
 $("#zout").addEventListener("click", () => svg.transition().duration(300).call(zoom.scaleBy, 1/1.6));
 $("#q").addEventListener("change", e => {
   const v = e.target.value.trim(); if (!v) return;
-  const c = countries.find(x => x.n === v || x.en.toLowerCase() === v.toLowerCase()) || countries.find(x => x.n.includes(v) || x.en.toLowerCase().includes(v.toLowerCase()));
+  const c = countries.find(x => x.n === v || x.alias === v || x.en.toLowerCase() === v.toLowerCase()) || countries.find(x => x.n.includes(v) || x.en.toLowerCase().includes(v.toLowerCase()));
   if (c){ openCountry(c.id); e.target.value = ""; e.target.blur(); }
 });
 window.addEventListener("hashchange", () => {
