@@ -65,7 +65,23 @@ header .sub{font-size:13px;color:var(--muted);margin-top:2px}
 .stat:hover{transform:translate(-2px,-3px);box-shadow:5px 6px 0 var(--edge)}
 .stat:active{transform:translate(1px,1px);box-shadow:1px 1px 0 var(--edge)}
 .stat[aria-current="page"]{transform:rotate(-3deg) translateY(-2px);box-shadow:4px 5px 0 var(--edge);outline:3px dashed var(--edge);outline-offset:3px}
-.ctiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,230px),1fr));gap:14px}
+.ctiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,190px),220px));gap:20px 18px;padding:8px 2px 4px}
+.ctile2{position:relative;display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;padding:22px 14px 16px;border:2.5px solid var(--edge);border-radius:24px;cursor:pointer;color:var(--ink);font:inherit;
+  background-color:var(--ss);background-image:radial-gradient(rgba(255,255,255,.75) 1.6px,transparent 2px);background-size:14px 14px;box-shadow:3px 3px 0 var(--edge);transform:rotate(var(--tilt));transition:transform .2s cubic-bezier(.34,1.56,.64,1),box-shadow .2s}
+.ctile2:hover{transform:rotate(0) translateY(-6px) scale(1.03);box-shadow:6px 9px 0 var(--edge)}
+.ctile2:active{transform:translateY(1px);box-shadow:1px 1px 0 var(--edge)}
+.pm2{width:84px;height:84px;border-radius:50%;background:var(--sc);border:3px solid var(--edge);display:grid;place-items:center;box-shadow:3px 3px 0 var(--edge);transition:transform .35s cubic-bezier(.34,1.56,.64,1)}
+.pm2 span{width:64px;height:64px;border-radius:50%;background:var(--paper);border:2.5px dashed var(--edge);display:grid;place-items:center;font-family:var(--f-pop);font-size:28px;transform:rotate(-10deg)}
+.ctile2:hover .pm2{transform:rotate(-14deg) scale(1.08)}
+.ctile2 h3{font-size:22px;margin-top:4px}
+.ctile2 .en{font-family:var(--f-pop);font-size:10.5px;letter-spacing:.06em;color:var(--muted)}
+.cstats{display:flex;flex-wrap:wrap;justify-content:center;gap:5px;margin-top:4px}
+.cstats span{background:var(--paper);border:2px solid var(--edge);border-radius:999px;padding:1px 9px;font-size:12px;font-weight:700}
+.visa{position:absolute;top:10px;right:-8px;display:flex;flex-direction:column;align-items:center;font-family:var(--f-pop);font-size:9.5px;letter-spacing:.06em;color:#C2185B;border:2px solid #C2185B;border-radius:8px;padding:3px 6px 2px;transform:rotate(14deg);background:rgba(255,255,255,.85);opacity:.85}
+.visa small{font-size:9px;letter-spacing:0}
+.ribbon{position:absolute;top:-12px;left:50%;transform:translateX(-50%) rotate(-3deg);background:var(--sun);border:2.5px solid var(--edge);border-radius:999px;padding:2px 12px;font-size:12px;font-weight:700;box-shadow:2px 2px 0 var(--edge);white-space:nowrap}
+@media (max-width:600px){.ctiles{grid-template-columns:repeat(2,minmax(0,1fr));gap:18px 12px}.pm2{width:70px;height:70px}.pm2 span{width:52px;height:52px;font-size:23px}.ctile2 h3{font-size:19px}}
+
 .ctile{display:flex;align-items:center;gap:12px;text-align:left;border:2.5px solid var(--edge);border-radius:18px;background:var(--paper);padding:12px 14px;box-shadow:2px 2px 0 var(--edge);cursor:pointer;transition:transform .15s,box-shadow .15s}
 .ctile:hover{transform:translate(-3px,-4px) rotate(-.6deg);box-shadow:6px 7px 0 var(--edge)}
 .ctile:active{transform:translate(1px,1px);box-shadow:1px 1px 0 var(--edge)}
@@ -1027,13 +1043,23 @@ function renderListView(dbNote){
     if (byId.has(HOME) && !m.has(HOME)) m.set(HOME, []);
     const ids = [...m.keys()].filter(id => byId.has(id)).sort((a,b) => (a === HOME ? -1 : b === HOME ? 1 : byId.get(a).n.localeCompare(byId.get(b).n, "zh-Hant")));
     head = `<span class="kana">COUNTRIES</span><h2>去過的國家・${ids.length} 國</h2>`;
-    body = ids.length ? `<div class="ctiles">${ids.map(id => {
-      const c = byId.get(id), ts = m.get(id);
+    body = ids.length ? `<div class="ctiles">${ids.map((id, k) => {
+      const c = byId.get(id), ts = m.get(id), home = id === HOME;
       const rs = new Set(); ts.forEach(t => t.regions.forEach(r => rs.add(r.id)));
-      const last = ts.map(t => t.end || t.start).sort().pop();
-      return `<button class="ctile" data-go="${esc(id)}">
-        <span class="seal ${countryStatus(id) || "v"}">${esc(c.n.slice(0,1))}</span>
-        <span><h3>${esc(c.n)}${id === HOME ? ` <span class="homechip">🏠 出生地</span>` : ""}</h3><small>${esc(c.alias ? c.alias + "・" + c.en : c.en)}</small><small>${id === HOME && !ts.length ? "我的家鄉" : `${ts.length} 趟旅程・${rs.size} 個區域${last ? "・最近 " + esc(last.slice(0,7).replace("-","/")) : ""}`}</small></span>
+      const dates = ts.map(t => t.end || t.start).filter(Boolean).sort();
+      const first = ts.map(t => t.start).filter(Boolean).sort()[0];
+      const last = dates[dates.length - 1];
+      const st = countryStatus(id) || "v";
+      const [sc, ss] = home ? ["#8EC9FF", "#DCEEFF"] : ST_COL[st];
+      const tilt = [-3, 2, -1.5, 3, -2][k % 5];
+      return `<button class="ctile2" data-go="${esc(id)}" style="--sc:${sc};--ss:${ss};--tilt:${tilt}deg">
+        ${home ? `<span class="ribbon">🏠 出生地</span>` : ""}
+        <span class="visa">${home ? "HOME" : "VISITED"}<small>${home ? "♥" : esc((first || last || "").slice(0,7).replace("-", "."))}</small></span>
+        <span class="pm2"><span>${esc(c.n.slice(0,1))}</span></span>
+        <h3>${esc(c.n)}</h3>
+        <small class="en">${esc(c.alias ? c.alias + "・" + c.en : c.en)}</small>
+        <span class="cstats">${home && !ts.length ? `<span>💖 我的家鄉</span>` :
+          `<span>🧳 ${ts.length} 趟</span>${rs.size ? `<span>📍 ${rs.size} 區</span>` : ""}${last ? `<span>🗓️ ${esc(last.slice(0,7).replace("-","/"))}</span>` : ""}`}</span>
       </button>`; }).join("")}</div>` :
       `<div class="empty"><div class="big">🌏</div>還沒有去過的國家。<br>旅程回程日過了之後，國家就會出現在這裡。</div>`;
   } else if (v === "friends"){
