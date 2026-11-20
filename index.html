@@ -96,6 +96,8 @@ header .sub{font-size:13px;color:var(--muted);margin-top:2px}
 .btn.ghost{background:transparent;box-shadow:none;border-style:dashed}
 .btn[disabled]{opacity:.45;cursor:not-allowed}
 .search{position:relative;flex:1 1 180px;max-width:260px}
+.search input::-webkit-calendar-picker-indicator{display:none!important;opacity:0}
+.search input::-webkit-search-cancel-button{cursor:pointer}
 .search input{width:100%;border:2.5px solid var(--edge);border-radius:999px;padding:6px 14px 6px 34px;background:var(--paper);box-shadow:2px 2px 0 var(--edge);font-size:14px}
 .search svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);width:16px;height:16px}
 .zoombtns{position:absolute;z-index:4;right:10px;bottom:10px;display:flex;flex-direction:column;gap:6px}
