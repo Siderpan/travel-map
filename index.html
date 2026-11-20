@@ -316,6 +316,8 @@ form.cform input{border:2px solid var(--edge);border-radius:12px;padding:7px 10p
 .tcard.link:hover .topen{opacity:1}
 .tfabs{position:absolute;right:12px;bottom:12px;z-index:2;display:flex;flex-direction:column;gap:8px}
 .tfabs .mapfab{position:static}
+.mapfab.editfab{background:var(--sun)}
+.tcard:has(.editfab) .tb{min-height:150px}
 @media (prefers-reduced-motion:reduce){.tplane,.st-u .tstat{animation:none}}
 .stampbook .trips{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,320px),1fr));gap:14px}
 .legend{display:flex;gap:10px;flex-wrap:wrap;font-size:15px;font-weight:700;color:var(--ink);padding:14px 2px 0}
@@ -880,7 +882,7 @@ function stampCard(t){
       ${crewHtml(t)}
       ${url ? `<div class="topen">📖 點卡片打開旅遊手冊</div>` : `<div class="topen none">還沒連結手冊</div>`}
     </div>
-    <div class="tfabs">${crewBtn}${mapBtn}</div>
+    <div class="tfabs">${canEdit ? `<button class="mapfab editfab" data-tedit="${esc(t.id)}" aria-label="編輯${esc(t.title || "這趟旅程")}" title="編輯旅程"><svg viewBox="0 0 24 24" fill="none" stroke="#2B2F55" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg></button>` : ""}${crewBtn}${mapBtn}</div>
   </article>`;
 }
 function tripCard(t, inCountry){
@@ -935,7 +937,7 @@ function editForm(){
     <label>一句話記錄<textarea name="note" maxlength="200" placeholder="例如：河口湖看富士山、淺草逛老街">${esc(e.note)}</textarea></label>
     <div>
       <div style="font-size:12.5px;font-weight:700">去過的區域</div>
-      <div class="pickhint">${hasRegions ? "直接點左邊地圖上的區域來勾選 / 取消" : "這個國家沒有細分區域資料，可略過"}</div>
+      <div class="pickhint">${hasRegions ? "直接點地圖上的區域來勾選 / 取消" : "這個國家沒有細分區域資料，可略過"}</div>
       <div class="chips">${chips}</div>
     </div>
     ${state.formErr ? `<div class="err">${esc(state.formErr)}</div>` : ""}
@@ -1157,6 +1159,7 @@ function showMap(){
 document.querySelectorAll(".tab[data-view], .stat").forEach(b => b.addEventListener("click", () => b.dataset.view === "map" ? showMap() : showStamps(true, b.dataset.view)));
 $("#stampsView").addEventListener("click", e => {
   const cb = e.target.closest("[data-crew]"); if (cb){ e.preventDefault(); openCrew(cb.dataset.crew); return; }
+  const te = e.target.closest("[data-tedit]"); if (te){ e.preventDefault(); startEditTrip(te.dataset.tedit); return; }
   const go = e.target.closest("[data-go]"); if (go){ openCountry(go.dataset.go); return; }
   if (e.target.closest("#compNew")){ state.compForm = {name: "", emoji: AVATARS[state.companions.length % AVATARS.length], _k:newKey()}; state.compErr = ""; renderPanel(); const i = document.querySelector('#compForm input[name="name"]'); if (i) i.focus(); return; }
   if (e.target.closest("#sortStart")){ state.sortIds = state.companions.map(c => c.id); state.compConfirmDel = null; renderPanel(); return; }
@@ -1498,6 +1501,13 @@ function startNewTrip(id){
   state.formErr = ""; state.confirmDel = null;
   openCountry(id).then(() => { const i = document.querySelector('#editForm input[name="title"]'); if (i) i.focus({preventScroll: true}); });
   if (window.innerWidth < 980) setTimeout(() => { const pn = $("#panel"); if (pn) pn.scrollIntoView({behavior: "smooth", block: "start"}); }, 900);
+}
+function startEditTrip(id){
+  const t = state.trips.find(x => x.id === id); if (!t || !byId.has(t.country)) return;
+  state.editing = {id:t.id, country:t.country, title:t.title||"", url:t.url||"", start:t.start||"", end:t.end||"", note:t.note||"",
+    regions:(t.regions||[]).map(r => ({id:r.id, n:r.n})), companions:[...(t.companions||[])], _k:newKey()};
+  state.formErr = ""; state.confirmDel = null;
+  openCountry(t.country).then(() => { const f = $("#editForm"); if (f){ f.scrollIntoView({behavior:"smooth", block: window.innerWidth < 980 ? "start" : "nearest"}); const i = f.querySelector('input[name="title"]'); if (i) i.focus({preventScroll:true}); } });
 }
 function askNewTrip(preset){
   if (!canEditNow()){ renderAdmin("要先開啟管理模式，才能新增旅程。"); $("#adminDlg").hidden = false; const i = $("#tokenInput"); if (i) i.focus(); return; }
