@@ -65,6 +65,7 @@ header .sub{font-size:13px;color:var(--muted);margin-top:2px}
 .stat:hover{transform:translate(-2px,-3px);box-shadow:5px 6px 0 var(--edge)}
 .stat:active{transform:translate(1px,1px);box-shadow:1px 1px 0 var(--edge)}
 .stat[aria-current="page"]{transform:rotate(-3deg) translateY(-2px);box-shadow:4px 5px 0 var(--edge);outline:3px dashed var(--edge);outline-offset:3px}
+.sbhead{display:flex;align-items:flex-end;justify-content:space-between;gap:10px;flex-wrap:wrap}
 .ctiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,190px),220px));gap:20px 18px;padding:8px 2px 4px}
 .ctile2{position:relative;display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;padding:22px 14px 16px;border:2.5px solid var(--edge);border-radius:24px;cursor:pointer;color:var(--ink);font:inherit;
   background-color:var(--ss);background-image:radial-gradient(rgba(255,255,255,.75) 1.6px,transparent 2px);background-size:14px 14px;box-shadow:3px 3px 0 var(--edge);transform:rotate(var(--tilt));transition:transform .2s cubic-bezier(.34,1.56,.64,1),box-shadow .2s}
@@ -103,6 +104,8 @@ header .sub{font-size:13px;color:var(--muted);margin-top:2px}
 
 /* ---------- map ---------- */
 .mapcard{position:relative;overflow:hidden;padding:0;border-radius:26px;box-shadow:var(--shadow-lg)}
+.maptools .addtrip{margin-left:auto}
+@media (max-width:600px){.maptools .addtrip{padding:6px 12px}}
 .maptools{position:absolute;z-index:4;top:10px;left:10px;right:10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;pointer-events:none}
 .maptools>*{pointer-events:auto}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:2.5px solid var(--edge);background:var(--paper);border-radius:999px;padding:6px 14px;font-weight:700;font-size:14px;cursor:pointer;box-shadow:2px 2px 0 var(--edge);transition:transform .12s, box-shadow .12s;text-decoration:none;white-space:nowrap}
@@ -419,6 +422,7 @@ footer{font-size:11.5px;color:var(--muted);text-align:center;margin-top:18px}
             <input id="q" type="search" name="country-search" list="countryList" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="找國家，例如：日本" aria-label="搜尋國家">
             <datalist id="countryList"></datalist>
           </div>
+          <button class="btn pink addtrip" data-newtrip>＋ 新增旅程</button>
         </div>
         <div class="editbar" id="editbar">✏️ 點地圖上的區域，標記這趟去過哪裡</div>
         <svg id="map" role="img" aria-label="可點選的世界地圖"></svg>
@@ -443,6 +447,15 @@ footer{font-size:11.5px;color:var(--muted);text-align:center;margin-top:18px}
   <section class="card panel stampbook" id="stampsView" aria-live="polite" hidden></section>
 </div>
 
+<div class="dlg" id="newDlg" hidden role="dialog" aria-modal="true" aria-labelledby="newTitle">
+  <div class="box">
+    <h2 id="newTitle" style="font-size:20px">✈️ 新增旅程</h2>
+    <p>這趟要去哪個國家？選好後會放大到那個國家，接著填寫手冊名稱、連結、日期，並在地圖上點選去過的區域。</p>
+    <label class="tokfield">國家<input id="newCountry" type="search" list="countryList" autocomplete="off" placeholder="輸入國名，例如：日本、韓國、泰國"></label>
+    <div class="err" id="newErr" hidden></div>
+    <div class="dlgacts"><button class="btn mint" id="newGo">下一步 →</button><button class="btn ghost" id="newClose">取消</button></div>
+  </div>
+</div>
 <div class="dlg" id="crewDlg" hidden role="dialog" aria-modal="true" aria-labelledby="crewTitle">
   <div class="box" id="crewBox"></div>
 </div>
@@ -972,7 +985,7 @@ function renderPanelInner(){
       ${ts.length ? `<div class="trips">${ts.map(t => tripCard(t, true)).join("")}</div>` :
         (!state.editing ? `<div class="empty"><div class="big">📍</div>還沒在這裡蓋過章。</div>` : "")}
       ${!state.editing && canEdit ? `<button class="btn sun" id="addTrip">＋ 新增這個國家的旅程手冊</button>` : ""}
-      ${!canEdit && state.tripsLoaded ? `<div class="pickhint">你目前只能檢視，無法新增旅程。</div>` : ""}`;
+      ${!canEdit && state.tripsLoaded ? `<button class="btn" data-newtrip="${esc(state.focus)}">🔑 開啟管理模式來新增旅程</button>` : ""}`;
   }
   $("#editbar").style.display = state.editing ? "block" : "none";
 }
@@ -1034,7 +1047,7 @@ function renderListView(dbNote){
   let head = "", body = "";
   if (v === "stamps"){
     const list = [...state.trips].sort(byStartDesc);
-    head = `<span class="kana">STAMP BOOK</span><h2>我的集章冊</h2>`;
+    head = `<div class="sbhead"><div><span class="kana">STAMP BOOK</span><h2>我的集章冊</h2></div><button class="btn pink" data-newtrip>＋ 新增旅程</button></div>`;
     body = list.length ? `<div class="trips">${list.map(t => tripCard(t, false)).join("")}</div>` :
       `<div class="empty"><div class="big">🧳</div>還沒有任何印章。<br>回到世界地圖點一個國家，就能加入第一本旅遊手冊。</div>`;
   } else if (v === "countries"){
@@ -1428,13 +1441,18 @@ async function boot(){
     .filter(f => f.properties.id !== "ATA")
     .map(f => ({id: f.properties.id, n: f.properties.n || f.properties.en, en: f.properties.en, c: f.properties.c, lx: f.properties.lx, ly: f.properties.ly, f}));
   countries.forEach(c => { c.f.id = c.id; byId.set(c.id, c); });
-  const tw = byId.get("TWN"); if (tw){ tw.n = "台灣"; tw.alias = "中華民國"; }
+  // 台灣常用的國名（第一個是顯示名稱，其餘可用來搜尋）
+  const NAME_FIX = {TWN:["台灣","中華民國","臺灣"], KOR:["韓國","大韓民國","南韓"], PRK:["北韓","朝鮮"], CHN:["中國","中華人民共和國","大陸"],
+    IDN:["印尼","印度尼西亞"], AUS:["澳洲","澳大利亞"], NZL:["紐西蘭","新西蘭"], CZE:["捷克","捷克共和國"], ARE:["阿聯酋","阿拉伯聯合大公國","杜拜"],
+    MNG:["蒙古","蒙古國"], USA:["美國","美利堅合眾國"], GBR:["英國","英格蘭","大不列顛"], ITA:["義大利","意大利"], VNM:["越南"], SAU:["沙烏地阿拉伯","沙特阿拉伯"]};
+  Object.entries(NAME_FIX).forEach(([id, names]) => { const c = byId.get(id); if (!c) return;
+    const orig = c.n; c.n = names[0]; c.aliases = [...new Set(names.slice(1).concat(orig !== names[0] ? [orig] : []))]; c.alias = id === "TWN" ? "中華民國" : ""; });
   updateStats();
   drawWorld();
   svg.call(zoom.transform, homeT());
   loadHiRes();
   clouds();
-  $("#countryList").innerHTML = [...countries].sort((a,b) => a.n.localeCompare(b.n, "zh-Hant")).map(c => `<option value="${esc(c.n)}">${esc(c.alias ? c.alias + "・" + c.en : c.en)}</option>` + (c.alias ? `<option value="${esc(c.alias)}">${esc(c.n)}</option>` : "")).join("");
+  $("#countryList").innerHTML = [...countries].sort((a,b) => a.n.localeCompare(b.n, "zh-Hant")).map(c => `<option value="${esc(c.n)}">${esc(c.alias ? c.alias + "・" + c.en : c.en)}</option>` + (c.aliases || []).map(a => `<option value="${esc(a)}">${esc(c.n)}</option>`).join("")).join("");
   const h = location.hash.slice(1);
   if (byId.has(h)) openCountry(h, false);
   else if (LIST_VIEWS.includes(h)) showStamps(false, h);
@@ -1451,7 +1469,7 @@ $("#zin").addEventListener("click", () => svg.transition().duration(300).call(zo
 $("#zout").addEventListener("click", () => svg.transition().duration(300).call(zoom.scaleBy, 1/1.6));
 $("#q").addEventListener("change", e => {
   const v = e.target.value.trim(); if (!v) return;
-  const c = countries.find(x => x.n === v || x.alias === v || x.en.toLowerCase() === v.toLowerCase()) || countries.find(x => x.n.includes(v) || x.en.toLowerCase().includes(v.toLowerCase()));
+  const c = findCountry(v);
   if (c){ openCountry(c.id); e.target.value = ""; e.target.blur(); }
 });
 window.addEventListener("hashchange", () => {
@@ -1464,6 +1482,40 @@ let rt; window.addEventListener("resize", () => { clearTimeout(rt); rt = setTime
   if (!relayout()) return;
   if (state.focus) zoomToBounds(mainBounds(byId.get(state.focus).f), 0); else svg.call(zoom.transform, homeT());
 }, 200); });
+
+/* ---------- new trip entry points ---------- */
+function canEditNow(){ return state.canEdit !== false && !state.readOnly && !!state.db && !!getToken(); }
+function findCountry(v){
+  v = (v || "").trim(); if (!v) return null;
+  const lv = v.toLowerCase();
+  const al = x => x.aliases || [];
+  return countries.find(x => x.n === v || al(x).includes(v) || x.en.toLowerCase() === lv)
+    || countries.find(x => x.n.includes(v) || al(x).some(a => a.includes(v)) || x.en.toLowerCase().includes(lv));
+}
+function startNewTrip(id){
+  $("#newDlg").hidden = true;
+  state.editing = {country: id, title:"", url:"", start:"", end:"", note:"", regions:[], companions:[], _k:newKey()};
+  state.formErr = ""; state.confirmDel = null;
+  openCountry(id).then(() => { const i = document.querySelector('#editForm input[name="title"]'); if (i) i.focus({preventScroll: true}); });
+  if (window.innerWidth < 980) setTimeout(() => { const pn = $("#panel"); if (pn) pn.scrollIntoView({behavior: "smooth", block: "start"}); }, 900);
+}
+function askNewTrip(preset){
+  if (!canEditNow()){ renderAdmin("要先開啟管理模式，才能新增旅程。"); $("#adminDlg").hidden = false; const i = $("#tokenInput"); if (i) i.focus(); return; }
+  if (preset && byId.has(preset)){ startNewTrip(preset); return; }
+  $("#newErr").hidden = true; $("#newCountry").value = state.focus ? byId.get(state.focus).n : "";
+  $("#newDlg").hidden = false; $("#newCountry").focus();
+}
+document.addEventListener("click", e => { const b = e.target.closest("[data-newtrip]"); if (b){ e.preventDefault(); askNewTrip(b.dataset.newtrip); } });
+function newGo(){
+  const c = findCountry($("#newCountry").value);
+  if (!c){ const er = $("#newErr"); er.textContent = "找不到這個國家，請從清單中選擇。"; er.hidden = false; return; }
+  startNewTrip(c.id);
+}
+$("#newDlg").addEventListener("click", e => {
+  if (e.target.id === "newDlg" || e.target.closest("#newClose")){ $("#newDlg").hidden = true; return; }
+  if (e.target.closest("#newGo")) newGo();
+});
+$("#newCountry").addEventListener("keydown", e => { if (e.key === "Enter"){ e.preventDefault(); newGo(); } if (e.key === "Escape") $("#newDlg").hidden = true; });
 
 /* ---------- edit companions of one trip ---------- */
 function openCrew(tripId){
