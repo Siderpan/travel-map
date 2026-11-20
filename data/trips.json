@@ -8,9 +8,22 @@
     "end": "2026-12-09",
     "note": "先在河口湖看富士山，最後兩晚住淺草逛東京",
     "regions": [
-      { "id": "JPN-1861", "n": "山梨縣" },
-      { "id": "JPN-1860", "n": "東京都" }
+      {
+        "id": "JPN-1861",
+        "n": "山梨縣"
+      },
+      {
+        "id": "JPN-1860",
+        "n": "東京都"
+      }
     ],
-    "updatedAt": "2026-11-20T00:15:00+08:00"
+    "updatedAt": "2026-11-20T15:23:03.978Z",
+    "companions": [
+      "09mc4m447gif005j70ai",
+      "8kpyfnv7lsru4h5iic7h",
+      "0yus5c01l0wms6tmsrd1",
+      "lfxng8ch4k9jpplmjz86",
+      "j2zqwibol1xfi5dt5edc"
+    ]
   }
 ]
