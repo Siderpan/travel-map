@@ -1,0 +1,1250 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Q版旅行足跡地圖</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Huninn&family=Mochiy+Pop+One&family=Noto+Sans+TC:wght@400;500;700;900&display=swap">
+<style>
+/* Layout: 和「富士東京冬日手帖」同一套貼紙手帳風 — 粗描邊 + 位移陰影、糖果色、圓點天空 */
+:root{
+  color-scheme:light;
+  --bg:#E8F3FF; --dots:rgba(43,47,85,.07);
+  --paper:#FFFFFF; --ink:#2B2F55; --muted:#62678C; --hair:#D6E0F2;
+  --edge:#2B2F55; --shadow:3px 3px 0 #2B2F55; --shadow-lg:5px 5px 0 #2B2F55;
+  --sky:#8EC9FF; --sky-soft:#DCEEFF; --ocean:#BFE2FF;
+  --pink:#FF8FB8; --pink-soft:#FFE2ED;
+  --sun:#FFD65A; --sun-soft:#FFF4CC;
+  --mint:#6FD9A8; --mint-soft:#DBF6E9;
+  --tang:#FF8A4C; --tang-soft:#FFE7D8;
+  --lilac:#B6A3FF; --lilac-soft:#ECE6FF;
+  --f-display:"Huninn","Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;
+  --f-pop:"Mochiy Pop One","Huninn","Noto Sans TC",sans-serif;
+  --f-body:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background-color:var(--bg);background-image:radial-gradient(var(--dots) 2px,transparent 2.5px);background-size:22px 22px;
+  color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.6;padding:0 14px 60px}
+.wrap{max-width:1180px;margin:0 auto}
+h1,h2,h3{font-family:var(--f-display);font-weight:400;margin:0;line-height:1.25;text-wrap:balance}
+button,input,textarea{font:inherit;color:inherit}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--tang);outline-offset:2px;border-radius:10px}
+.card{background:var(--paper);border:2.5px solid var(--edge);border-radius:22px;box-shadow:var(--shadow)}
+.sticker{display:inline-block;font-family:var(--f-pop);font-size:12px;line-height:1;padding:6px 10px 5px;border-radius:999px;border:2px solid var(--edge);background:var(--sun);color:var(--ink);transform:rotate(-3deg);box-shadow:2px 2px 0 var(--edge)}
+
+/* ---------- header ---------- */
+header{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px 20px;padding:18px 2px 14px}
+.brand{display:flex;align-items:center;gap:12px;min-width:0;text-decoration:none;color:inherit;cursor:pointer;border-radius:18px}
+.brand .globe{transition:transform .35s cubic-bezier(.34,1.56,.64,1)}
+.brand:hover .globe{transform:rotate(-26deg) scale(1.08)}
+.brand:active .globe{transform:rotate(-8deg) scale(.94)}
+.globe{width:62px;height:62px;flex:0 0 auto;transform:rotate(-8deg);filter:drop-shadow(3px 3px 0 var(--edge))}
+header h1{font-size:clamp(26px,5.6vw,40px)}
+header h1 .hl{background:linear-gradient(transparent 62%,var(--sun) 62%,var(--sun) 92%,transparent 92%);padding:0 2px}
+header .sub{font-size:13px;color:var(--muted);margin-top:2px}
+.stats{display:flex;gap:8px;flex-wrap:wrap}
+.stat{display:flex;flex-direction:column;align-items:center;min-width:76px;padding:6px 12px 7px;border-radius:16px;border:2.5px solid var(--edge);background:var(--paper);box-shadow:var(--shadow);cursor:pointer;transition:transform .15s,box-shadow .15s}
+.stat:hover{transform:translate(-2px,-3px);box-shadow:5px 6px 0 var(--edge)}
+.stat:active{transform:translate(1px,1px);box-shadow:1px 1px 0 var(--edge)}
+.stat[aria-current="page"]{transform:rotate(-3deg) translateY(-2px);box-shadow:4px 5px 0 var(--edge);outline:3px dashed var(--edge);outline-offset:3px}
+.ctiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,230px),1fr));gap:14px}
+.ctile{display:flex;align-items:center;gap:12px;text-align:left;border:2.5px solid var(--edge);border-radius:18px;background:var(--paper);padding:12px 14px;box-shadow:2px 2px 0 var(--edge);cursor:pointer;transition:transform .15s,box-shadow .15s}
+.ctile:hover{transform:translate(-3px,-4px) rotate(-.6deg);box-shadow:6px 7px 0 var(--edge)}
+.ctile:active{transform:translate(1px,1px);box-shadow:1px 1px 0 var(--edge)}
+.ctile h3{font-size:18px}
+.ctile small{display:block;font-size:12px;color:var(--muted);font-weight:700}
+.rgroup{border:2.5px solid var(--edge);border-radius:18px;padding:12px 14px;background:var(--paper);box-shadow:2px 2px 0 var(--edge)}
+.rgroup h3{display:flex;align-items:center;gap:8px;font-size:18px}
+.rgroup .chip{cursor:pointer}
+.rgroup .chip:hover{background:var(--pink)}
+.rgroups{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));gap:14px}
+.stat b{font-family:var(--f-pop);font-size:24px;line-height:1.1;font-variant-numeric:tabular-nums}
+.stat span{font-size:11.5px;font-weight:700;color:var(--muted)}
+.stat.p{background:var(--pink-soft)} .stat.s{background:var(--sun-soft)} .stat.m{background:var(--mint-soft)}
+
+/* ---------- layout ---------- */
+.main{display:grid;grid-template-columns:minmax(0,1fr);gap:16px;align-items:start}
+@media (min-width:980px){.main{grid-template-columns:minmax(0,1fr) 360px}}
+
+/* ---------- map ---------- */
+.mapcard{position:relative;overflow:hidden;padding:0;border-radius:26px;box-shadow:var(--shadow-lg)}
+.maptools{position:absolute;z-index:4;top:10px;left:10px;right:10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;pointer-events:none}
+.maptools>*{pointer-events:auto}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:2.5px solid var(--edge);background:var(--paper);border-radius:999px;padding:6px 14px;font-weight:700;font-size:14px;cursor:pointer;box-shadow:2px 2px 0 var(--edge);transition:transform .12s, box-shadow .12s;text-decoration:none;white-space:nowrap}
+.btn:hover{transform:translate(-1px,-1px);box-shadow:3px 3px 0 var(--edge)}
+.btn:active{transform:translate(2px,2px);box-shadow:0 0 0 var(--edge)}
+.btn.pink{background:var(--pink)} .btn.sun{background:var(--sun)} .btn.mint{background:var(--mint)} .btn.sky{background:var(--sky)}
+.btn.sm{padding:4px 11px;font-size:13px}
+.btn.ghost{background:transparent;box-shadow:none;border-style:dashed}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.search{position:relative;flex:1 1 180px;max-width:260px}
+.search input{width:100%;border:2.5px solid var(--edge);border-radius:999px;padding:6px 14px 6px 34px;background:var(--paper);box-shadow:2px 2px 0 var(--edge);font-size:14px}
+.search svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);width:16px;height:16px}
+.zoombtns{position:absolute;z-index:4;right:10px;bottom:10px;display:flex;flex-direction:column;gap:6px}
+.zoombtns .btn{width:36px;height:36px;padding:0;font-family:var(--f-pop);font-size:18px}
+#map{display:block;width:100%;touch-action:none;cursor:grab;background:var(--ocean)}
+#map:active{cursor:grabbing}
+.sphere{fill:url(#oceanDots)}
+.grat{fill:none;stroke:#fff;stroke-opacity:.55;stroke-dasharray:3 5;vector-effect:non-scaling-stroke}
+[hidden]{display:none!important}
+.shadow path.off{opacity:0}
+.land path{stroke:var(--edge);stroke-width:1.3px;vector-effect:non-scaling-stroke;stroke-linejoin:round;cursor:pointer;transition:fill .2s,opacity .25s}
+.land path:hover{filter:brightness(1.06) saturate(1.2)}
+.shadow path{fill:var(--edge);stroke:var(--edge);stroke-width:1.3px;vector-effect:non-scaling-stroke}
+.land path.dim{opacity:.38}
+.land path.focus{opacity:1}
+.regions path{stroke:var(--edge);stroke-width:1px;vector-effect:non-scaling-stroke;stroke-linejoin:round;cursor:pointer;transition:fill .2s}
+.regions path:hover{fill:var(--sky)!important}
+.regions path.hit-v{fill:var(--pink)!important}.regions path.hit-u{fill:var(--sun)!important}.regions path.hit-o{fill:var(--mint)!important}
+.regions path.pick{fill:var(--mint)!important}
+.rlabel{font-family:var(--f-display);fill:var(--ink);paint-order:stroke;stroke:#fff;stroke-linejoin:round;text-anchor:middle;dominant-baseline:central;pointer-events:none}
+.rlabel.hit{font-weight:700}
+.arc{fill:none;stroke:var(--edge);stroke-width:1.8px;stroke-dasharray:5 6;stroke-linecap:round;vector-effect:non-scaling-stroke;opacity:.6;pointer-events:none}
+.marker{cursor:pointer}
+.marker .bob{animation:bob 2.4s ease-in-out infinite}
+.marker:hover .bob{animation-duration:.6s}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+.mk-text{font-family:var(--f-pop);font-size:12px;text-anchor:middle;dominant-baseline:central;fill:var(--ink);pointer-events:none}
+.clabel{font-family:var(--f-display);font-size:13px;fill:var(--ink);paint-order:stroke;stroke:#fff;stroke-width:4px;stroke-linejoin:round;text-anchor:middle;pointer-events:none}
+.cloud{position:absolute;z-index:2;pointer-events:none;opacity:.9;animation:drift linear infinite}
+@keyframes drift{from{transform:translateX(-140px)}to{transform:translateX(calc(100vw + 140px))}}
+@media (prefers-reduced-motion:reduce){.cloud,.marker .bob{animation:none}.cloud{display:none}}
+.tip{position:absolute;z-index:5;pointer-events:none;background:var(--paper);border:2px solid var(--edge);border-radius:12px;padding:4px 10px;font-size:13px;font-weight:700;box-shadow:2px 2px 0 var(--edge);white-space:nowrap;transform:translate(-50%,calc(-100% - 12px));display:none}
+.tip small{font-weight:500;color:var(--muted);margin-left:4px}
+.crumb{position:absolute;z-index:4;left:10px;bottom:10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;max-width:calc(100% - 70px)}
+.crumb .name{background:var(--paper);border:2.5px solid var(--edge);border-radius:14px;padding:3px 12px;font-family:var(--f-display);font-size:18px;box-shadow:2px 2px 0 var(--edge)}
+.editbar{position:absolute;z-index:4;left:50%;top:56px;transform:translateX(-50%);background:var(--mint);border:2.5px solid var(--edge);border-radius:999px;padding:5px 14px;font-weight:700;font-size:13px;box-shadow:2px 2px 0 var(--edge);display:none;white-space:nowrap}
+.tabs{display:flex;gap:8px;flex-wrap:wrap}
+.tab{border:2.5px solid var(--edge);background:var(--paper);border-radius:999px;padding:6px 16px;font-weight:700;font-size:14.5px;cursor:pointer;box-shadow:2px 2px 0 var(--edge);transition:transform .12s,box-shadow .12s}
+.tab:hover{transform:translate(-1px,-1px);box-shadow:3px 3px 0 var(--edge)}
+.tab[aria-current="page"]{background:var(--sun);transform:rotate(-2deg)}
+.keybtn{flex:0 0 auto!important;padding:6px 11px!important}
+.keybtn.on{background:var(--mint)}
+.dlg{position:fixed;inset:0;z-index:50;background:rgba(43,47,85,.35);display:grid;place-items:center;padding:16px}
+.dlg[hidden]{display:none}
+.dlg .box{width:min(460px,100%);background:var(--paper);border:2.5px solid var(--edge);border-radius:22px;box-shadow:var(--shadow-lg);padding:18px;display:flex;flex-direction:column;gap:12px}
+.dlg .box p{margin:0;font-size:13.5px;color:var(--muted)}
+.dlg .box ol{margin:0;padding-left:20px;font-size:13px;color:var(--muted)}
+.dlg input{border:2px solid var(--edge);border-radius:12px;padding:8px 10px;font-size:14px;width:100%}
+.right{display:flex;flex-direction:column;align-items:flex-end;gap:10px}
+@media (max-width:640px){.right{align-items:flex-start}}
+@media (min-width:980px){.main.solo{grid-template-columns:minmax(0,1fr)}}
+.stampbook{max-width:1180px}
+.trip.link{transition:transform .15s ease,box-shadow .15s ease;cursor:pointer}
+.trip.link:hover{transform:translate(-3px,-4px) rotate(-.4deg);box-shadow:6px 7px 0 var(--edge)}
+.trip.link:active{transform:translate(1px,1px);box-shadow:1px 1px 0 var(--edge)}
+.trip.link:focus-within{outline:3px solid var(--tang);outline-offset:3px}
+.trip .cover{position:absolute;inset:0;z-index:1;border-radius:16px}
+.trip .cover:focus-visible{outline:none}
+.trip .acts{position:relative;z-index:2}
+.trip.hasfab{padding-right:62px;min-height:112px}
+.trip.hasfab h3{padding-right:20px}
+.mapfab{position:absolute;z-index:2;right:12px;bottom:12px;width:42px;height:42px;border-radius:50%;border:2.5px solid var(--edge);background:var(--sky);box-shadow:2px 2px 0 var(--edge);display:grid;place-items:center;cursor:pointer;padding:0;transition:transform .15s,box-shadow .15s}
+.mapfab svg{width:20px;height:20px}
+.mapfab:hover{transform:translate(-1px,-2px) rotate(-8deg);box-shadow:3px 4px 0 var(--edge);background:var(--sun)}
+.mapfab:active{transform:translate(1px,1px);box-shadow:0 0 0 var(--edge)}
+.crew{display:flex;align-items:center;gap:8px;margin-top:8px;font-size:12.5px;font-weight:700;color:var(--muted)}
+.avs{display:flex}
+.av{width:28px;height:28px;border-radius:50%;border:2px solid var(--edge);display:grid;place-items:center;font-size:15px;line-height:1;background:var(--paper);flex:0 0 auto}
+.avs .av+.av{margin-left:-8px}
+.av.me{background:var(--sun);font-family:var(--f-pop);font-size:11px;color:var(--ink)}
+.av.lg{width:52px;height:52px;font-size:28px;border-width:2.5px;box-shadow:2px 2px 0 var(--edge)}
+.cpick{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+.cchip{display:inline-flex;align-items:center;gap:6px;border:2px solid var(--edge);border-radius:999px;padding:2px 10px 2px 2px;background:var(--paper);font-size:13px;font-weight:700;cursor:pointer}
+.cchip .av{width:24px;height:24px;font-size:13px;border-width:1.5px}
+.cchip[aria-pressed="true"]{background:var(--mint);box-shadow:2px 2px 0 var(--edge)}
+.quick{display:flex;gap:6px;margin-top:6px}
+.quick input{flex:1;min-width:0}
+.friends{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,190px),210px));gap:18px 16px;padding-top:6px}
+.friend{position:relative;align-items:center;text-align:center;gap:8px!important;padding:0 14px 14px!important;overflow:hidden;
+  background:var(--fc,#FFE2ED)!important;background-image:radial-gradient(rgba(255,255,255,.55) 1.6px,transparent 2px)!important;background-size:14px 14px!important;
+  border-radius:22px!important;box-shadow:3px 3px 0 var(--edge)!important;transition:transform .15s,box-shadow .15s}
+.friend:not(.sorting):hover{transform:translateY(-3px) rotate(-.8deg);box-shadow:5px 6px 0 var(--edge)!important}
+.badge-top{position:relative;align-self:stretch;margin:0 -14px;display:flex;justify-content:space-between;align-items:center;padding:16px 12px 7px;background:var(--paper);border-bottom:2.5px dashed var(--edge);font-family:var(--f-pop);font-size:10.5px;letter-spacing:.04em}
+.badge-top .hole{position:absolute;top:5px;left:50%;transform:translateX(-50%);width:34px;height:8px;border-radius:999px;border:2px solid var(--edge);background:var(--bg)}
+.badge-top .bt-r{background:var(--ink);color:var(--paper);border-radius:999px;padding:2px 7px 1px}
+.face{margin-top:8px}
+.av.xl{width:78px;height:78px;font-size:44px;border-width:3px;box-shadow:3px 3px 0 var(--edge)}
+.friend h3{font-size:21px;margin-top:2px}
+.fstats{display:flex;gap:6px;justify-content:center;flex-wrap:wrap}
+.fstats span{background:var(--paper);border:2px solid var(--edge);border-radius:999px;padding:1px 10px;font-size:12.5px;font-weight:700}
+.fstats b{font-family:var(--f-pop);font-weight:400}
+.fstats .fnone{color:var(--muted);border-style:dashed;background:rgba(255,255,255,.6)}
+.fseals{display:flex;flex-wrap:wrap;justify-content:center;gap:6px}
+.fseal{width:32px;height:32px;border-radius:50%;border:2px solid var(--edge);font-family:var(--f-pop);font-size:13px;cursor:pointer;padding:0;transform:rotate(-8deg);box-shadow:1.5px 1.5px 0 var(--edge);background:var(--paper)}
+.fseal.v{background:var(--pink)} .fseal.u{background:var(--sun)} .fseal.o{background:var(--mint)}
+.fseal:hover{transform:rotate(6deg) scale(1.12)}
+.fnext{font-size:12px;font-weight:700;background:rgba(255,255,255,.7);border-radius:10px;padding:3px 8px}
+.factions{display:flex;gap:6px;justify-content:center;margin-top:auto;padding-top:2px}
+.ibtn{min-width:34px;height:34px;border-radius:999px;border:2px solid var(--edge);background:var(--paper);cursor:pointer;font-size:15px;padding:0 8px;box-shadow:2px 2px 0 var(--edge);font-weight:700}
+.ibtn:hover{transform:translate(-1px,-1px)}
+.ibtn.danger{background:var(--pink);font-size:12.5px}
+.friend .moves{justify-content:center}
+.friend.sorting{cursor:grab;border-style:dashed;user-select:none}
+.friend.sorting:active{cursor:grabbing}
+.friend.dragging{opacity:.4}
+.friend.over{outline:3px solid var(--tang);outline-offset:3px}
+.friend .ord{position:absolute;top:-10px;left:-10px;width:28px;height:28px;border-radius:50%;border:2px solid var(--edge);background:var(--sun);display:grid;place-items:center;font-family:var(--f-pop);font-size:13px;box-shadow:2px 2px 0 var(--edge)}
+.friend .moves{display:flex;gap:6px}
+.friend .moves .btn{width:36px;height:32px;padding:0}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.toolbar .hint{font-size:12.5px;color:var(--muted);font-weight:700}
+.friend{border:2.5px solid var(--edge);border-radius:18px;background:var(--paper);padding:14px;box-shadow:2px 2px 0 var(--edge);display:flex;flex-direction:column;gap:8px}
+.friend .top{display:flex;align-items:center;gap:12px}
+.friend h3{font-size:19px}
+.friend small{display:block;font-size:12px;font-weight:700;color:var(--muted)}
+.friend .chip{cursor:pointer;margin-top:0}
+.friend .chip:hover{background:var(--pink)}
+.friend .acts{display:flex;gap:6px;flex-wrap:wrap}
+form.cform{display:flex;flex-direction:column;gap:10px;border:2.5px dashed var(--edge);border-radius:18px;padding:14px;background:var(--mint-soft);max-width:560px}
+form.cform label{display:flex;flex-direction:column;gap:3px;font-size:12.5px;font-weight:700}
+form.cform input{border:2px solid var(--edge);border-radius:12px;padding:7px 10px;background:var(--paper);font-size:14px;font-weight:400}
+.emojis{display:flex;flex-wrap:wrap;gap:6px}
+.emojiwrap{display:flex;flex-direction:column;gap:8px;max-height:280px;overflow-y:auto;padding:4px 6px 6px 2px;border:2px solid var(--edge);border-radius:14px;background:var(--paper)}
+.elabel{font-size:11.5px;font-weight:700;color:var(--muted);margin:2px 0 4px}
+.emojis button{width:40px;height:40px;border-radius:50%;border:2px solid var(--edge);background:var(--paper);font-size:20px;cursor:pointer;padding:0;line-height:1}
+.emojis button[aria-pressed="true"]{background:var(--sun);transform:rotate(-8deg) scale(1.08);box-shadow:2px 2px 0 var(--edge)}
+.stampbook .trips{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,320px),1fr));gap:14px}
+.legend{display:flex;gap:10px;flex-wrap:wrap;font-size:15px;font-weight:700;color:var(--ink);padding:14px 2px 0}
+.legend span{display:inline-flex;align-items:center;gap:8px;background:var(--paper);border:2.5px solid var(--edge);border-radius:999px;padding:5px 14px 5px 7px;box-shadow:2px 2px 0 var(--edge)}
+.legend i{display:inline-block;width:22px;height:22px;border-radius:50%;border:2.5px solid var(--edge)}
+@media (max-width:600px){
+  body{padding:0 10px 40px}
+  header{padding:14px 0 12px}
+  .right{width:100%;align-items:stretch}
+  .tabs{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;padding:2px 4px 6px 2px;margin:0 -2px}
+  .tabs::-webkit-scrollbar{display:none}
+  .tab{flex:1 0 auto;font-size:14px;padding:6px 12px}
+  .stats{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .legend{font-size:14px;gap:8px}
+  .legend span{padding:4px 12px 4px 6px}
+  .legend i{width:19px;height:19px}
+  .friends{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 10px}
+  .friend{padding:0 10px 12px!important}
+  .badge-top{margin:0 -10px;padding:15px 8px 6px;font-size:9px}
+  .av.xl{width:64px;height:64px;font-size:36px}
+  .friend h3{font-size:18px}
+  .panel{padding:14px}
+  .maptools .search{max-width:none}
+}
+@media (max-width:360px){.friends{grid-template-columns:minmax(0,1fr)}}
+
+/* ---------- side panel ---------- */
+.panel{padding:16px;display:flex;flex-direction:column;gap:14px}
+.panel h2{font-size:22px}
+.panel .kana{font-family:var(--f-pop);font-size:11px;color:var(--muted);letter-spacing:.06em}
+.ptitle{display:flex;align-items:center;gap:10px}
+.seal{flex:0 0 auto;width:48px;height:48px;border-radius:50%;border:2.5px solid var(--edge);display:grid;place-items:center;font-family:var(--f-pop);font-size:20px;box-shadow:2px 2px 0 var(--edge);transform:rotate(-6deg);background:var(--paper)}
+.seal.v{background:var(--pink)} .seal.u{background:var(--sun)} .seal.o{background:var(--mint)} .seal.n{background:var(--lilac-soft)}
+.note{font-size:13px;color:var(--muted);background:var(--sky-soft);border:2px dashed var(--edge);border-radius:14px;padding:8px 12px}
+.note.warn{background:var(--tang-soft)}
+.trips{display:flex;flex-direction:column;gap:12px}
+.trip{position:relative;border:2.5px solid var(--edge);border-radius:18px;background:var(--paper);padding:12px 12px 12px 14px;box-shadow:2px 2px 0 var(--edge)}
+.trip::before{content:"";position:absolute;left:-2.5px;top:14px;bottom:14px;width:6px;border-radius:0 6px 6px 0;background:var(--pink);border:2px solid var(--edge);border-left:0}
+.trip.u::before{background:var(--sun)} .trip.o::before{background:var(--mint)} .trip.n::before{background:var(--lilac)}
+.trip h3{font-size:17px;padding-right:66px}
+.trip .when{font-size:12.5px;color:var(--muted);font-weight:700;font-variant-numeric:tabular-nums;margin-top:2px}
+.trip .tnote{font-size:13.5px;margin-top:6px}
+.chip{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:700;padding:2px 9px;border-radius:999px;border:2px solid var(--edge);background:var(--pink-soft);margin:6px 4px 0 0}
+.chips{display:flex;flex-wrap:wrap}
+.status{position:absolute;right:10px;top:10px;font-family:var(--f-pop);font-size:11px;padding:4px 8px 3px;border-radius:999px;border:2px solid var(--edge);transform:rotate(4deg);background:var(--pink)}
+.status.u{background:var(--sun)} .status.o{background:var(--mint)} .status.n{background:var(--lilac-soft)}
+.trip .acts{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.empty{text-align:center;padding:14px 8px;color:var(--muted);font-size:14px}
+.empty .big{font-size:34px;line-height:1}
+form.edit{display:flex;flex-direction:column;gap:10px;border:2.5px dashed var(--edge);border-radius:18px;padding:12px;background:var(--mint-soft)}
+form.edit label{display:flex;flex-direction:column;gap:3px;font-size:12.5px;font-weight:700}
+form.edit input,form.edit textarea{border:2px solid var(--edge);border-radius:12px;padding:7px 10px;background:var(--paper);font-size:14px;font-weight:400;width:100%}
+form.edit textarea{min-height:58px;resize:vertical}
+.row2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px}
+form.edit input{min-width:0}
+.pickhint{font-size:12.5px;color:var(--muted)}
+.chip.x{cursor:pointer;background:var(--mint)}
+.chip.x:hover{background:var(--pink)}
+.err{color:#C2185B;font-size:13px;font-weight:700}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+footer{font-size:11.5px;color:var(--muted);text-align:center;margin-top:18px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <a class="brand" id="homeLink" href="#" title="回到世界地圖">
+      <svg class="globe" viewBox="0 0 64 64" aria-hidden="true">
+        <circle cx="32" cy="32" r="28" fill="#8EC9FF" stroke="#2B2F55" stroke-width="3"/>
+        <path d="M14 22c6-3 9 2 14 0s4-8 10-7 6 6 2 9-9 2-10 7 5 6 3 10-8 2-10-2-3-7-8-8-4-6-1-9z" fill="#6FD9A8" stroke="#2B2F55" stroke-width="2.5" stroke-linejoin="round"/>
+        <path d="M42 38c4-1 8 1 9 4s-2 7-5 7-6-2-6-5 0-5 2-6z" fill="#FFD65A" stroke="#2B2F55" stroke-width="2.5"/>
+        <circle cx="25" cy="44" r="2.2" fill="#2B2F55"/><circle cx="37" cy="44" r="2.2" fill="#2B2F55"/>
+        <path d="M28 49q3 3 6 0" fill="none" stroke="#2B2F55" stroke-width="2.2" stroke-linecap="round"/>
+        <ellipse cx="20" cy="48" rx="3" ry="2" fill="#FF8FB8" opacity=".8"/><ellipse cx="42" cy="48" rx="3" ry="2" fill="#FF8FB8" opacity=".8"/>
+      </svg>
+      <div>
+        <span class="sticker">MY TRAVEL STAMPS</span>
+        <h1>我的<span class="hl">旅行足跡</span>地圖</h1>
+        <div class="sub">點國家放大看區域・每一本旅遊手冊就是一枚印章</div>
+      </div>
+    </a>
+    <div class="right">
+    <nav class="tabs" aria-label="頁面">
+      <button class="tab" data-view="map" aria-current="page">🗺️ 世界地圖</button>
+      <button class="tab" data-view="stamps">📒 我的集章冊</button>
+      <button class="tab" data-view="friends">👫 旅伴</button>
+      <button class="tab keybtn" id="adminBtn" title="管理模式" aria-label="管理模式">🔑</button>
+    </nav>
+    <div class="stats" aria-live="polite">
+      <button class="stat p" data-view="countries"><b id="sCountries">0</b><span>去過的國家</span></button>
+      <button class="stat s" data-view="upcoming"><b id="sUpcoming">0</b><span>即將出發</span></button>
+    </div>
+    </div>
+  </header>
+
+  <div class="main solo" id="mapView">
+    <div>
+      <div class="card mapcard" id="mapcard">
+        <div class="maptools">
+          <button class="btn sky" id="backBtn" hidden>← 回世界地圖</button>
+          <div class="search">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#2B2F55" stroke-width="2.6" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/></svg>
+            <input id="q" list="countryList" placeholder="找國家，例如：日本" aria-label="搜尋國家">
+            <datalist id="countryList"></datalist>
+          </div>
+        </div>
+        <div class="editbar" id="editbar">✏️ 點地圖上的區域，標記這趟去過哪裡</div>
+        <svg id="map" role="img" aria-label="可點選的世界地圖"></svg>
+        <div class="tip" id="tip"></div>
+        <div class="crumb" id="crumb"></div>
+        <div class="zoombtns">
+          <button class="btn" id="zin" aria-label="放大">＋</button>
+          <button class="btn" id="zout" aria-label="縮小">－</button>
+        </div>
+      </div>
+      <div class="legend">
+        <span><i style="background:var(--pink)"></i>去過</span>
+        <span><i style="background:var(--sun)"></i>即將出發</span>
+        <span><i style="background:var(--mint)"></i>旅行中</span>
+        <span><i style="background:var(--lilac-soft)"></i>計畫中</span>
+        <span><i style="background:#FFF8EC"></i>還沒去</span>
+      </div>
+    </div>
+    <aside class="card panel" id="panel" aria-live="polite" hidden></aside>
+  </div>
+  <section class="card panel stampbook" id="stampsView" aria-live="polite" hidden></section>
+</div>
+
+<div class="dlg" id="adminDlg" hidden role="dialog" aria-modal="true" aria-labelledby="adminTitle">
+  <div class="box">
+    <h2 id="adminTitle" style="font-size:20px">🔑 管理模式</h2>
+    <div id="adminBody"></div>
+  </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js"></script>
+<script>
+(() => {
+"use strict";
+const HOME = "TWN";
+const CONT = {"Asia":"#FFE7D8","Europe":"#ECE6FF","Africa":"#FFF4CC","North America":"#DBF6E9","South America":"#FFE2ED","Oceania":"#FFF8EC","Seven seas (open ocean)":"#FFF8EC","Antarctica":"#FFFFFF"};
+const STATUS_FILL = {v:"#FF8FB8",u:"#FFD65A",o:"#6FD9A8",n:"#ECE6FF"};
+const STATUS_TXT = {v:"去過",u:"即將出發",o:"旅行中",n:"計畫中"};
+const REGION_FILLS = ["#FFF8EC","#FFF4CC","#FFE7D8","#ECE6FF","#DBF6E9","#DCEEFF"];
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const safeUrl = u => /^https?:\/\//i.test(String(u||"").trim()) ? String(u).trim() : "";
+const todayStr = () => { const d = new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); };
+
+const state = {
+  trips: [], tripsLoaded: false, dbNote: "",
+  db: null, canEdit: null, readOnly: false,
+  view: "map",            // "map" | "stamps"
+  focus: null,            // country id in zoomed mode
+  regions: {},            // cache id -> features | null
+  editing: null,          // {id?, country, title, url, start, end, note, regions:[{id,n}]}
+  confirmDel: null, saving: false, formErr: "",
+  companions: [], compForm: null, compConfirmDel: null, compErr: "", compSaving: false, sortIds: null, sortSaving: false
+};
+
+/* ---------- trips helpers ---------- */
+function tripStatus(t){
+  const today = todayStr();
+  if (!t.start) return "n";
+  const end = t.end || t.start;
+  if (end < today) return "v";
+  if (t.start > today) return "u";
+  return "o";
+}
+function daysUntil(d){ const a = new Date(todayStr()+"T00:00:00"), b = new Date(d+"T00:00:00"); return Math.round((b-a)/864e5); }
+function fmtRange(t){
+  if (!t.start) return "日期未定";
+  const f = s => s.replace(/-/g,"/");
+  if (!t.end || t.end === t.start) return f(t.start);
+  return f(t.start) + " – " + (t.end.slice(0,4) === t.start.slice(0,4) ? f(t.end.slice(5)) : f(t.end));
+}
+function countryStatus(id){
+  const ts = state.trips.filter(t => t.country === id);
+  if (!ts.length) return null;
+  const ss = ts.map(tripStatus);
+  for (const k of ["o","v","u","n"]) if (ss.includes(k)) return k;
+  return null;
+}
+function regionStatusMap(id){
+  const m = new Map(), rank = {o:3, v:2, u:1};
+  state.trips.filter(t => t.country === id && tripStatus(t) !== "n").forEach(t => {
+    const s = tripStatus(t);
+    (t.regions||[]).forEach(r => { if (!m.has(r.id) || rank[s] > rank[m.get(r.id)]) m.set(r.id, s); });
+  });
+  return m;
+}
+function visitedRegionIds(id){ return new Set(regionStatusMap(id).keys()); }
+
+/* ---------- map setup ---------- */
+const svg = d3.select("#map");
+const defs = svg.append("defs");
+const pat = defs.append("pattern").attr("id","oceanDots").attr("width",22).attr("height",22).attr("patternUnits","userSpaceOnUse");
+pat.append("rect").attr("width",22).attr("height",22).attr("fill","#BFE2FF");
+pat.append("circle").attr("cx",11).attr("cy",11).attr("r",1.6).attr("fill","#fff").attr("opacity",.7);
+const zoomG = svg.append("g");
+const sphereP = zoomG.append("path").attr("class","sphere");
+const gratP = zoomG.append("path").attr("class","grat");
+const shadowG = zoomG.append("g").attr("class","shadow");
+const landG = zoomG.append("g").attr("class","land");
+const regShadowG = zoomG.append("g").attr("class","shadow");
+const regionG = zoomG.append("g").attr("class","regions");
+const arcG = zoomG.append("g");
+const labelG = zoomG.append("g");
+const markerG = zoomG.append("g");
+
+let W = 900, H = 480, K = 1;
+// Mercator keeps every country's shape true when zoomed in (no tilt/shear)
+const projection = d3.geoMercator();
+const WORLD_BOX = {type:"MultiPoint", coordinates:[[-180, 80], [180, -57]]};
+const path = d3.geoPath(projection);
+let countries = [], byId = new Map();
+
+const zoom = d3.zoom().scaleExtent([1, 220]).on("zoom", ev => {
+  zoomG.attr("transform", ev.transform);
+  K = ev.transform.k;
+  onZoomScale();
+});
+svg.call(zoom).on("dblclick.zoom", null);
+
+function onZoomScale(){
+  const o = 2.6 / K;
+  shadowG.attr("transform", `translate(${o},${o})`);
+  pat.attr("patternTransform", `scale(${1/K})`);
+  regShadowG.attr("transform", `translate(${o*.8},${o*.8})`);
+  markerG.selectAll(".marker").attr("transform", d => `translate(${d.p[0]},${d.p[1]}) scale(${1/K})`);
+  regionG.selectAll(".rlabel").each(function(d){
+    const fs = 11.5 / K;
+    const show = d.screen * K >= 26 || d.hit;
+    d3.select(this).attr("font-size", (d.hit ? 13 : 11.5)/K).attr("stroke-width", 3/K).attr("display", show ? null : "none");
+  });
+  arcG.selectAll(".plane").attr("transform", `rotate(90) scale(${1/K})`);
+}
+
+function sizeMap(){
+  const card = $("#mapcard");
+  W = Math.max(300, card.clientWidth);
+  H = W < 640
+    ? Math.round(Math.max(340, Math.min(W * 1.05, window.innerHeight * 0.66)))
+    : Math.round(Math.max(380, Math.min(680, W * 0.56, window.innerHeight * 0.74)));
+  svg.attr("viewBox", `0 0 ${W} ${H}`).attr("height", H);
+  projection.fitExtent([[10, 54],[W-10, H-10]], WORLD_BOX);
+  zoom.translateExtent([[-W*0.3,-H*0.3],[W*1.3,H*1.3]]).extent([[0,0],[W,H]]);
+}
+
+function drawWorld(){
+  sphereP.attr("d", path({type:"Sphere"}));
+  gratP.attr("d", path(d3.geoGraticule10()));
+  shadowG.selectAll("path").data(countries, d => d.id).join("path").attr("d", d => path(d.f));
+  landG.selectAll("path").data(countries, d => d.id).join("path")
+    .attr("d", d => path(d.f))
+    .on("click", (ev, d) => { ev.stopPropagation(); if (state.editing && state.focus === d.id) return; openCountry(d.id); })
+    .on("mousemove", (ev, d) => showTip(ev, d.n, d.n !== d.en ? d.en : ""))
+    .on("mouseleave", hideTip);
+  paintWorld();
+}
+
+function paintWorld(){
+  landG.selectAll("path")
+    .attr("fill", d => { const s = countryStatus(d.id); return s ? STATUS_FILL[s] : (CONT[d.c] || "#FFF8EC"); })
+    .classed("dim", d => state.focus && d.id !== state.focus);
+  shadowG.selectAll("path").classed("off", d => state.focus && d.id !== state.focus);
+
+  // markers & arcs
+  const tripCountries = [...new Set(state.trips.map(t => t.country))].filter(id => byId.has(id));
+  const mk = tripCountries.map(id => { const c = byId.get(id); return {id, c, s: countryStatus(id), p: projection([c.lx, c.ly])}; });
+  const home = byId.get(HOME);
+  const homeMk = home ? [{id:HOME, c:home, s:"home", p: projection([home.lx, home.ly])}] : [];
+  const all = mk.filter(m => m.id !== HOME).concat(homeMk.length && !mk.find(m=>m.id===HOME) ? homeMk : mk.filter(m=>m.id===HOME));
+
+  const arcs = home ? mk.filter(m => m.id !== HOME && m.s !== "n").map(m => ({id:m.id, d: path({type:"LineString", coordinates:[[home.lx, home.ly],[m.c.lx, m.c.ly]]})})) : [];
+  arcG.selectAll("path.arc").data(arcs, d => d.id).join("path").attr("class","arc").attr("id", d => "arc-"+d.id).attr("d", d => d.d);
+  arcG.selectAll("g.planeWrap").remove();
+  arcs.forEach((a, i) => {
+    const w = arcG.append("g").attr("class","planeWrap");
+    const am = w.append("g");
+    const pl = am.append("g").attr("class","plane");
+    pl.append("path").attr("d","M0,-7 L2,-2 L9,1 L9,3.5 L2,2 L1.2,6.5 L3.5,8.5 L3.5,9.6 L0,8.8 L-3.5,9.6 L-3.5,8.5 L-1.2,6.5 L-2,2 L-9,3.5 L-9,1 L-2,-2 Z")
+      .attr("fill","#fff").attr("stroke","#2B2F55").attr("stroke-width",1.6).attr("stroke-linejoin","round");
+    const anim = document.createElementNS("http://www.w3.org/2000/svg","animateMotion");
+    anim.setAttribute("dur", "6s"); anim.setAttribute("repeatCount","indefinite"); anim.setAttribute("rotate","auto"); anim.setAttribute("begin", (i*1.3)+"s");
+    const mp = document.createElementNS("http://www.w3.org/2000/svg","mpath");
+    mp.setAttribute("href", "#arc-"+a.id);
+    anim.appendChild(mp); am.node().appendChild(anim);
+  });
+  arcG.style("display", state.focus ? "none" : null);
+
+  const m = markerG.selectAll(".marker").data(all, d => d.id).join(enter => {
+    const g = enter.append("g").attr("class","marker");
+    const b = g.append("g").attr("class","bob");
+    b.append("path").attr("d","M0,4 L-6,-10 A14,14 0 1,1 6,-10 Z").attr("transform","translate(0,0)").attr("class","pinbody");
+    b.append("circle").attr("cy",-20).attr("r",11.5).attr("class","pinface").attr("fill","#fff").attr("stroke","#2B2F55").attr("stroke-width",2);
+    b.append("text").attr("class","mk-text").attr("y",-20);
+    g.append("text").attr("class","clabel").attr("y",16);
+    return g;
+  });
+  m.select(".pinbody").attr("transform","translate(0,-14)")
+    .attr("d","M0,14 C-4,6 -15,0 -15,-8 A15,15 0 1,1 15,-8 C15,0 4,6 0,14 Z")
+    .attr("fill", d => d.s === "home" ? "#8EC9FF" : STATUS_FILL[d.s]).attr("stroke","#2B2F55").attr("stroke-width",2.4).attr("stroke-linejoin","round");
+  m.select(".pinface").attr("cy",-22).attr("r",10.5);
+  m.select(".clabel").text(d => d.s === "home" ? "" : d.c.n);
+  m.select(".mk-text").attr("y",-22).text(d => d.s === "home" ? "家" : (d.c.n||d.c.en).slice(0,1));
+  m.on("click", (ev, d) => { ev.stopPropagation(); openCountry(d.id); })
+   .on("mousemove", (ev, d) => showTip(ev, d.s === "home" ? "家・"+d.c.n : d.c.n, d.s === "home" ? "出發點" : STATUS_TXT[d.s]))
+   .on("mouseleave", hideTip);
+  markerG.style("display", state.focus ? "none" : null);
+
+  onZoomScale();
+}
+
+/* ---------- regions ---------- */
+async function loadRegions(id){
+  if (id in state.regions) return state.regions[id];
+  try {
+    const r = await fetch("data/a1/" + id + ".json");
+    if (!r.ok) throw 0;
+    const topo = await r.json();
+    const obj = Object.values(topo.objects)[0];
+    const fc = topojson.feature(topo, obj).features.map(f => ({id: f.properties.id, n: f.properties.n || f.properties.en, en: f.properties.en, f}));
+    state.regions[id] = fc;
+  } catch(e){ state.regions[id] = null; }
+  return state.regions[id];
+}
+
+function drawRegions(){
+  const id = state.focus;
+  const feats = id ? (state.regions[id] || []) : [];
+  const rsm = id ? regionStatusMap(id) : new Map();
+  const hits = new Set(rsm.keys());
+  const picks = new Set((state.editing && state.editing.country === id) ? state.editing.regions.map(r => r.id) : []);
+  regShadowG.selectAll("path").data(feats, d => d.id).join("path").attr("d", d => path(d.f));
+  regionG.selectAll("path").data(feats, d => d.id).join("path")
+    .attr("d", d => path(d.f))
+    .attr("fill", (d, i) => REGION_FILLS[i % REGION_FILLS.length])
+    .attr("class", d => (!state.editing && rsm.has(d.id)) ? "hit-" + rsm.get(d.id) : null)
+    .classed("pick", d => picks.has(d.id))
+    .on("mousemove", (ev, d) => showTip(ev, d.n + (hits.has(d.id) ? " ★" : ""), d.n !== d.en ? d.en : ""))
+    .on("mouseleave", hideTip)
+    .on("click", (ev, d) => { ev.stopPropagation(); if (state.editing) toggleRegion(d); else showTip(ev, d.n + (hits.has(d.id) ? " ★" : ""), d.n !== d.en ? d.en : ""); });
+  const lab = feats.map(d => {
+    const b = path.bounds(d.f); const c = path.centroid(d.f);
+    return {id: d.id, n: d.n, x: c[0], y: c[1], screen: Math.min(b[1][0]-b[0][0], b[1][1]-b[0][1]), hit: hits.has(d.id)};
+  }).filter(d => isFinite(d.x));
+  regionG.selectAll("text").data(lab, d => d.id).join("text").attr("class", d => "rlabel" + (d.hit ? " hit" : ""))
+    .attr("x", d => d.x).attr("y", d => d.y).text(d => (d.hit ? "★ " : "") + d.n);
+  regionG.selectAll("text").raise();
+  onZoomScale();
+}
+
+/* ---------- zoom helpers ---------- */
+function mainBounds(feature){
+  const g = feature.geometry;
+  if (!g || g.type !== "MultiPolygon") return path.bounds(feature);
+  const polys = g.coordinates.map(c => ({type:"Polygon", coordinates:c})).map(p => ({p, a: path.area(p)}));
+  const max = d3.max(polys, d => d.a);
+  const keep = polys.filter(d => d.a >= max * 0.12).map(d => d.p.coordinates);
+  return path.bounds({type:"MultiPolygon", coordinates: keep});
+}
+function zoomToBounds(b, dur = 850){
+  const dx = b[1][0]-b[0][0], dy = b[1][1]-b[0][1];
+  const cx = (b[0][0]+b[1][0])/2, cy = (b[0][1]+b[1][1])/2;
+  const k = Math.max(1, Math.min(220, 0.82 / Math.max(dx / W, dy / (H - 60))));
+  const t = d3.zoomIdentity.translate(W/2 - k*cx, (H+40)/2 - k*cy).scale(k);
+  svg.transition().duration(dur).ease(d3.easeCubicInOut).call(zoom.transform, t);
+}
+
+async function loadHiRes(){
+  try {
+    const topo = await (await fetch("data/world_hi.json")).json();
+    const feats = topojson.feature(topo, Object.values(topo.objects)[0]).features;
+    let n = 0;
+    feats.forEach(f => { const c = byId.get(f.properties.id); if (c && f.geometry){ f.id = c.id; c.f = f; n++; } });
+    if (n){ drawWorld(); }
+  } catch(e){ /* keep the lighter outlines */ }
+}
+function homeT(){
+  if (W >= 640) return d3.zoomIdentity;
+  const b = path.bounds(WORLD_BOX), sh = b[1][1] - b[0][1];
+  const k = Math.max(1, Math.min(2.4, (H - 70) / sh));
+  const home = byId.get(HOME), p = home ? projection([home.lx, home.ly]) : [W/2, H/2];
+  const cx = Math.max(b[0][0] + W/(2*k), Math.min(b[1][0] - W/(2*k), p[0] - 40/k));
+  const cy = (b[0][1] + b[1][1]) / 2;
+  return d3.zoomIdentity.translate(W/2 - k*cx, (H+30)/2 - k*cy).scale(k);
+}
+async function openCountry(id, push = true){
+  const c = byId.get(id); if (!c) return;
+  if (state.editing && state.editing.country !== id) state.editing = null;
+  state.focus = id; state.confirmDel = null; state.view = "map";
+  if (push && location.hash !== "#"+id) setHash(id);
+  $("#backBtn").hidden = false;
+  $("#crumb").innerHTML = `<span class="name">${esc(c.n)}</span>`;
+  setLayout(); relayout();
+  paintWorld(); drawRegions(); renderPanel();
+  zoomToBounds(mainBounds(c.f));
+  await loadRegions(id);
+  if (state.focus === id){ drawRegions(); renderPanel(); }
+}
+function backToWorld(){
+  state.focus = null; state.editing = null; state.confirmDel = null;
+  state.view = "map";
+  if (location.hash) setHash("");
+  $("#backBtn").hidden = true; $("#crumb").innerHTML = ""; $("#editbar").style.display = "none";
+  setLayout(); relayout();
+  paintWorld(); drawRegions(); renderPanel();
+  svg.transition().duration(800).ease(d3.easeCubicInOut).call(zoom.transform, homeT());
+}
+
+/* ---------- tooltip ---------- */
+const tip = $("#tip");
+function showTip(ev, a, b){
+  const r = $("#mapcard").getBoundingClientRect();
+  tip.style.display = "block";
+  tip.style.left = (ev.clientX - r.left) + "px"; tip.style.top = (ev.clientY - r.top) + "px";
+  tip.innerHTML = esc(a) + (b ? `<small>${esc(b)}</small>` : "");
+}
+function hideTip(){ tip.style.display = "none"; }
+
+/* ---------- panel ---------- */
+function tripCard(t, inCountry){
+  const s = tripStatus(t);
+  const c = byId.get(t.country);
+  const url = safeUrl(t.url);
+  let badge = STATUS_TXT[s];
+  if (s === "u"){ const d = daysUntil(t.start); badge = d === 1 ? "明天出發" : `倒數 ${d} 天`; }
+  const regs = (t.regions||[]).map(r => `<span class="chip">${esc(r.n)}</span>`).join("");
+  const canEdit = state.canEdit !== false && !state.readOnly && state.db;
+  const delConfirm = state.confirmDel === t.id;
+  const asLink = !inCountry && url;
+  const fab = !inCountry ? `<button class="mapfab" data-go="${esc(t.country)}" aria-label="在地圖上看${esc(c ? c.n : t.country)}" title="看地圖"><svg viewBox="0 0 24 24" fill="none" stroke="#2B2F55" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4 3 6.5v13.5L9 17.5l6 2.5 6-2.5V4l-6 2.5z"/><path d="M9 4v13.5M15 6.5V20"/></svg></button>` : "";
+  const acts = (asLink ? "" : url ? `<a class="btn pink sm" href="${esc(url)}" target="_blank" rel="noopener">📖 打開旅遊手冊 ↗</a>` : `<span class="chip" style="background:var(--hair)">還沒連結手冊</span>`)
+    + (inCountry && canEdit ? `<button class="btn sm" data-edit="${esc(t.id)}">✏️ 編輯</button>
+        <button class="btn sm ${delConfirm ? "pink" : "ghost"}" data-del="${esc(t.id)}">${delConfirm ? "確定刪除？" : "刪除"}</button>` : "");
+  return `<article class="trip ${s}${asLink ? " link" : ""}${fab ? " hasfab" : ""}">
+    ${fab}
+    ${asLink ? `<a class="cover" href="${esc(url)}" target="_blank" rel="noopener" aria-label="打開旅遊手冊：${esc(t.title || "未命名旅程")}"></a>` : ""}
+    <span class="status ${s}">${esc(badge)}</span>
+    <h3>${esc(t.title || "未命名旅程")}</h3>
+    <div class="when">${inCountry ? "" : esc(c ? c.n : t.country) + "・"}${esc(fmtRange(t))}</div>
+    ${t.note ? `<div class="tnote">${esc(t.note)}</div>` : ""}
+    ${regs ? `<div class="chips">${regs}</div>` : ""}
+    ${crewHtml(t)}
+    ${acts ? `<div class="acts">${acts}</div>` : ""}
+  </article>`;
+}
+
+function editForm(){
+  const e = state.editing;
+  const chips = e.regions.length ? e.regions.map(r => `<span class="chip x" data-unpick="${esc(r.id)}" title="移除">${esc(r.n)} ✕</span>`).join("") : `<span class="pickhint">還沒選區域</span>`;
+  const hasRegions = state.regions[e.country] && state.regions[e.country].length;
+  return `<form class="edit" id="editForm" data-k="${e._k}">
+    <strong style="font-family:var(--f-display);font-size:17px">${e.id ? "編輯旅程" : "新增一枚印章"}</strong>
+    <label>旅遊手冊名稱<input name="title" required maxlength="80" value="${esc(e.title)}" placeholder="例如：富士東京冬日手帖"></label>
+    <label>手冊連結<input name="url" type="url" maxlength="500" value="${esc(e.url)}" placeholder="https://siderpan.github.io/…"></label>
+    <div class="row2">
+      <label>出發日<input name="start" type="date" value="${esc(e.start)}"></label>
+      <label>回程日<input name="end" type="date" value="${esc(e.end)}"></label>
+    </div>
+    <div>
+      <div style="font-size:12.5px;font-weight:700">這趟的旅伴</div>
+      <div class="cpick">
+        <span class="cchip" style="cursor:default;background:var(--sun-soft)"><span class="av me">我</span>我</span>
+        ${state.companions.map(c => `<button type="button" class="cchip" data-tcomp="${esc(c.id)}" aria-pressed="${e.companions.includes(c.id)}">${avatar(c)}${esc(c.name)}</button>`).join("")}
+      </div>
+      <div class="quick"><input id="quickName" maxlength="20" placeholder="新增旅伴名字" value="${esc(state.quickName || "")}"><button type="button" class="btn sm sun" id="quickAdd">＋ 加入</button></div>
+    </div>
+    <label>一句話記錄<textarea name="note" maxlength="200" placeholder="例如：河口湖看富士山、淺草逛老街">${esc(e.note)}</textarea></label>
+    <div>
+      <div style="font-size:12.5px;font-weight:700">去過的區域</div>
+      <div class="pickhint">${hasRegions ? "直接點左邊地圖上的區域來勾選 / 取消" : "這個國家沒有細分區域資料，可略過"}</div>
+      <div class="chips">${chips}</div>
+    </div>
+    ${state.formErr ? `<div class="err">${esc(state.formErr)}</div>` : ""}
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn mint" type="submit" ${state.saving ? "disabled" : ""}>${state.saving ? "儲存中…" : "💾 儲存"}</button>
+      <button class="btn ghost" type="button" id="cancelEdit">取消</button>
+    </div>
+  </form>`;
+}
+
+function renderPanel(){
+  syncForm(); syncCompForm();
+  const ae = document.activeElement;
+  const keep = ae && (ae.tagName === "INPUT" || ae.tagName === "TEXTAREA") && ae.closest("#panel, #stampsView")
+    ? {id: ae.id, name: ae.name, form: ae.form && ae.form.id, s: ae.selectionStart, e: ae.selectionEnd} : null;
+  const ew0 = document.querySelector(".emojiwrap"), est = ew0 ? ew0.scrollTop : 0;
+  renderPanelInner();
+  const ew1 = document.querySelector(".emojiwrap"); if (ew1 && est) ew1.scrollTop = est;
+  if (keep){
+    const el = keep.id ? document.getElementById(keep.id) : (keep.form ? document.querySelector(`#${keep.form} [name="${keep.name}"]`) : null);
+    if (el){ el.focus(); try { if (keep.s != null) el.setSelectionRange(keep.s, keep.e); } catch(e){} }
+  }
+}
+function renderPanelInner(){
+  const P = $("#panel");
+  const canEdit = state.canEdit !== false && !state.readOnly && !!state.db;
+  const dbNote = state.dbNote ? `<div class="note warn">${esc(state.dbNote)}</div>` : "";
+  if (state.view !== "map") renderListView(dbNote);
+  if (!state.focus){
+    P.innerHTML = "";
+  } else {
+    const c = byId.get(state.focus);
+    const s = countryStatus(state.focus);
+    const ts = state.trips.filter(t => t.country === state.focus).sort((a,b) => (b.start||"9999").localeCompare(a.start||"9999"));
+    const hits = visitedRegionIds(state.focus);
+    const regs = state.regions[state.focus];
+    const total = regs ? regs.length : 0;
+    P.innerHTML = `
+      <div class="ptitle">
+        <div class="seal ${s || "n"}">${esc((c.n||c.en).slice(0,1))}</div>
+        <div><span class="kana">${esc(c.en.toUpperCase())}</span><h2>${esc(c.n)}</h2></div>
+      </div>
+      ${dbNote}
+      ${total ? `<div class="note">這裡有 <b>${total}</b> 個區域，目前點亮 <b>${hits.size}</b> 個${hits.size ? "（地圖上的 ★）" : ""}。</div>` :
+        (state.focus in state.regions ? `<div class="note">這個國家沒有細分區域資料，只顯示國家輪廓。</div>` : `<div class="note">區域地圖載入中…</div>`)}
+      ${state.editing ? editForm() : ""}
+      ${ts.length ? `<div class="trips">${ts.map(t => tripCard(t, true)).join("")}</div>` :
+        (!state.editing ? `<div class="empty"><div class="big">📍</div>還沒在這裡蓋過章。</div>` : "")}
+      ${!state.editing && canEdit ? `<button class="btn sun" id="addTrip">＋ 新增這個國家的旅程手冊</button>` : ""}
+      ${!canEdit && state.tripsLoaded ? `<div class="pickhint">你目前只能檢視，無法新增旅程。</div>` : ""}`;
+  }
+  $("#editbar").style.display = state.editing ? "block" : "none";
+}
+
+/* ---------- companions ---------- */
+const AVATAR_GROUPS = [
+  ["動物", ["🐻","🐰","🐱","🐶","🐼","🦊","🐨","🐯","🐸","🐧","🐥","🐹","🐵","🦄","🐮","🐷","🐭","🐔","🦁","🐴","🐺","🦝","🐻‍❄️","🦒","🦓","🐘","🦛","🦘","🦔","🦦","🦥","🦫"]],
+  ["海洋與鳥兒", ["🐳","🐬","🐙","🦀","🐠","🐡","🦭","🐢","🦈","🦑","🦉","🦩","🦜","🕊️","🦆","🐦"]],
+  ["小蟲與幻想", ["🦋","🐞","🐝","🐌","🦖","🐲","🦕","👻","🤖","👽","🎃","⛄"]],
+  ["表情", ["😀","😊","😎","🥰","🤓","😴","🤠","🥳","😇","🤗","😋","🧐"]],
+  ["美食", ["🍙","🍡","🍓","🍑","🍉","🍰","🧋","🍜","🍣","🍩","🍦","🍕","🥐","🍔","🧁","☕"]],
+  ["自然與旅行", ["🌸","🌻","🍀","🌈","⭐","🌙","🍄","🌵","🗻","🏝️","✈️","🚂","🎈","🎒","📷","🎵"]]
+];
+const AVATARS = AVATAR_GROUPS.flatMap(g => g[1]);
+const AV_BG = ["#FFE2ED","#DCEEFF","#DBF6E9","#FFF4CC","#ECE6FF","#FFE7D8"];
+function compById(id){ return state.companions.find(c => c.id === id); }
+function avatar(c, lg){
+  const i = [...c.id].reduce((n, ch) => n + ch.charCodeAt(0), 0) % AV_BG.length;
+  return `<span class="av${lg === "xl" ? " xl" : lg ? " lg" : ""}" style="background:${lg === "xl" ? "#fff" : AV_BG[i]}" aria-hidden="true">${esc(c.emoji)}</span>`;
+}
+const CARD_BG = ["#FFD3E3","#CFE6FF","#C9F0DC","#FFEDB0","#DED5FF","#FFD9C4"];
+function compColor(c){ return CARD_BG[[...c.id].reduce((n, ch) => n + ch.charCodeAt(0), 0) % CARD_BG.length]; }
+function crewHtml(t){
+  const cs = (t.companions || []).map(compById).filter(Boolean);
+  const avs = `<span class="avs"><span class="av me" title="我">我</span>${cs.slice(0, 5).map(c => avatar(c)).join("")}</span>`;
+  const names = cs.length ? "和 " + cs.map(c => esc(c.name)).join("、") : "一個人的旅行";
+  return `<div class="crew">${avs}<span>${names}</span></div>`;
+}
+function compErrText(err){
+  if (err && err.code === "invalid_argument") return "沒有寫入權限：請按右上角 🔑 重新輸入 GitHub 金鑰。";
+  if (err && err.code === "quota_exceeded") return "儲存空間已滿。";
+  return "儲存失敗，請稍後再試一次。";
+}
+async function createCompanion(name, emoji){
+  try {
+    const ref = state.db.collection("companions").doc();
+    const maxOrd = state.companions.reduce((m, c) => Math.max(m, c.order ?? -1), state.companions.length - 1);
+    await ref.set({name: name.slice(0, 20), emoji, order: maxOrd + 1, createdAt: new Date().toISOString()});
+    return ref.id;
+  } catch(err){ state.compErr = compErrText(err); state.formErr = compErrText(err); renderPanel(); return null; }
+}
+async function deleteCompanion(id){
+  try {
+    for (const t of state.trips.filter(t => t.companions.includes(id))){
+      await state.db.collection("trips").doc(t.id).update({companions: t.companions.filter(c => c !== id)});
+    }
+    await state.db.collection("companions").doc(id).delete();
+  } catch(err){ state.compErr = "刪除失敗，請稍後再試。"; }
+  state.compConfirmDel = null; renderPanel();
+}
+
+/* ---------- list pages ---------- */
+const LIST_VIEWS = ["stamps","countries","upcoming","friends"];
+function doneTrips(){ return state.trips.filter(t => ["v","o"].includes(tripStatus(t))); }
+function renderListView(dbNote){
+  const V = $("#stampsView"), v = state.view;
+  const loading = !state.tripsLoaded && !state.dbNote ? `<div class="empty">載入旅程中…</div>` : "";
+  const byStartDesc = (a,b) => (b.start||"9999").localeCompare(a.start||"9999");
+  let head = "", body = "";
+  if (v === "stamps"){
+    const list = [...state.trips].sort(byStartDesc);
+    head = `<span class="kana">STAMP BOOK</span><h2>我的集章冊</h2>`;
+    body = list.length ? `<div class="trips">${list.map(t => tripCard(t, false)).join("")}</div>` :
+      `<div class="empty"><div class="big">🧳</div>還沒有任何印章。<br>回到世界地圖點一個國家，就能加入第一本旅遊手冊。</div>`;
+  } else if (v === "countries"){
+    const m = new Map();
+    doneTrips().forEach(t => { if (!m.has(t.country)) m.set(t.country, []); m.get(t.country).push(t); });
+    const ids = [...m.keys()].filter(id => byId.has(id)).sort((a,b) => byId.get(a).n.localeCompare(byId.get(b).n, "zh-Hant"));
+    head = `<span class="kana">COUNTRIES</span><h2>去過的國家・${ids.length} 國</h2>`;
+    body = ids.length ? `<div class="ctiles">${ids.map(id => {
+      const c = byId.get(id), ts = m.get(id);
+      const rs = new Set(); ts.forEach(t => t.regions.forEach(r => rs.add(r.id)));
+      const last = ts.map(t => t.end || t.start).sort().pop();
+      return `<button class="ctile" data-go="${esc(id)}">
+        <span class="seal ${countryStatus(id) || "v"}">${esc(c.n.slice(0,1))}</span>
+        <span><h3>${esc(c.n)}</h3><small>${esc(c.en)}</small><small>${ts.length} 趟旅程・${rs.size} 個區域${last ? "・最近 " + esc(last.slice(0,7).replace("-","/")) : ""}</small></span>
+      </button>`; }).join("")}</div>` :
+      `<div class="empty"><div class="big">🌏</div>還沒有去過的國家。<br>旅程回程日過了之後，國家就會出現在這裡。</div>`;
+  } else if (v === "friends"){
+    const canEdit = state.canEdit !== false && !state.readOnly && !!state.db;
+    head = `<span class="kana">TRAVEL BUDDIES</span><h2>旅伴・${state.companions.length} 位</h2>`;
+    const f = state.compForm;
+    const form = f ? `<form class="cform" id="compForm" data-k="${f._k}">
+        <strong style="font-family:var(--f-display);font-size:17px">${f.id ? "編輯旅伴" : "新增旅伴"}</strong>
+        <label>名字<input name="name" maxlength="20" required value="${esc(f.name)}" placeholder="例如：小美"></label>
+        <div><div style="font-size:12.5px;font-weight:700;margin-bottom:4px">頭像</div>
+          <div class="emojiwrap">${AVATAR_GROUPS.map(([g, list]) => `<div class="egroup"><div class="elabel">${g}</div><div class="emojis">${list.map(a => `<button type="button" data-emoji="${a}" aria-pressed="${f.emoji === a}" aria-label="選擇頭像 ${a}">${a}</button>`).join("")}</div></div>`).join("")}</div></div>
+        ${state.compErr ? `<div class="err">${esc(state.compErr)}</div>` : ""}
+        <div style="display:flex;gap:8px"><button class="btn mint" type="submit" ${state.compSaving ? "disabled" : ""}>${state.compSaving ? "儲存中…" : "💾 儲存"}</button><button class="btn ghost" type="button" id="compCancel">取消</button></div>
+      </form>` : "";
+    const sorting = !!state.sortIds;
+    const toolbar = !canEdit || f ? "" : sorting
+      ? `<div class="toolbar"><button class="btn mint" id="sortDone" ${state.sortSaving ? "disabled" : ""}>${state.sortSaving ? "儲存中…" : "✓ 完成排序"}</button><button class="btn ghost" id="sortCancel">取消</button><span class="hint">拖曳卡片，或用 ◀ ▶ 調整順序</span></div>`
+      : `<div class="toolbar"><button class="btn sun" id="compNew">＋ 新增旅伴</button>${state.companions.length > 1 ? `<button class="btn" id="sortStart">↕ 編輯排序</button>` : ""}</div>`;
+    const ordered = sorting ? state.sortIds.map(compById).filter(Boolean) : state.companions;
+    const cards = ordered.map((c, i) => {
+      const ts = state.trips.filter(t => t.companions.includes(c.id)).sort(byStartDesc);
+      const done = ts.filter(t => tripStatus(t) !== "n");
+      const ctry = [...new Set(ts.map(t => t.country))].filter(id => byId.has(id));
+      const del = state.compConfirmDel === c.id;
+      const no = String((sorting ? i : state.companions.indexOf(c)) + 1).padStart(2, "0");
+      const head = `<div class="badge-top"><span class="hole"></span><span class="bt-l">TRAVEL BUDDY</span><span class="bt-r">No.${no}</span></div>`;
+      const face = `<div class="face">${avatar(c, "xl")}</div><h3>${esc(c.name)}</h3>`;
+      if (sorting) return `<div class="friend sorting" style="--fc:${compColor(c)}" draggable="true" data-sid="${esc(c.id)}">
+        ${head}${face}
+        <div class="moves"><button class="btn sm" data-move="-1" data-mid="${esc(c.id)}" ${i === 0 ? "disabled" : ""} aria-label="往前移">◀</button><button class="btn sm" data-move="1" data-mid="${esc(c.id)}" ${i === ordered.length - 1 ? "disabled" : ""} aria-label="往後移">▶</button></div>
+      </div>`;
+      const next = ts.filter(t => tripStatus(t) === "u").sort((a,b) => a.start.localeCompare(b.start))[0];
+      return `<div class="friend" style="--fc:${compColor(c)}">
+        ${head}${face}
+        <div class="fstats">${ts.length ? `<span>🧳 <b>${ts.length}</b> 趟</span><span>🌏 <b>${ctry.length}</b> 國</span>` : `<span class="fnone">還沒一起出發過</span>`}</div>
+        ${ctry.length ? `<div class="fseals">${ctry.map(id => { const k = byId.get(id); return `<button class="fseal ${countryStatus(id) || "n"}" data-go="${esc(id)}" title="${esc(k.n)}" aria-label="在地圖上看${esc(k.n)}">${esc(k.n.slice(0,1))}</button>`; }).join("")}</div>` : ""}
+        ${next ? `<div class="fnext">✈️ ${esc(next.title || "下一趟")}・倒數 ${daysUntil(next.start)} 天</div>` : ""}
+        ${canEdit ? `<div class="factions"><button class="ibtn" data-compedit="${esc(c.id)}" aria-label="編輯${esc(c.name)}" title="編輯">✏️</button><button class="ibtn ${del ? "danger" : ""}" data-compdel="${esc(c.id)}" aria-label="刪除${esc(c.name)}" title="刪除">${del ? (ts.length ? `確定？會從 ${ts.length} 趟移除` : "確定刪除？") : "🗑️"}</button></div>` : ""}
+      </div>`; }).join("");
+    body = form + toolbar + (state.compErr && !f ? `<div class="err">${esc(state.compErr)}</div>` : "") + (state.companions.length ? `<div class="friends" style="margin-top:4px">${cards}</div>` :
+      `<div class="empty"><div class="big">👫</div>還沒有旅伴。<br>新增後就能在每趟旅程勾選同行的人。</div>`);
+  } else if (v === "upcoming"){
+    const list = state.trips.filter(t => tripStatus(t) === "u").sort((a,b) => a.start.localeCompare(b.start));
+    head = `<span class="kana">UPCOMING</span><h2>即將出發・${list.length} 趟</h2>`;
+    body = list.length ? `<div class="trips">${list.map(t => tripCard(t, false)).join("")}</div>` :
+      `<div class="empty"><div class="big">✈️</div>目前沒有排定的旅程。</div>`;
+  }
+  V.innerHTML = `<div>${head}</div>${dbNote}${loading || body}`;
+}
+
+/* ---------- views ---------- */
+function setHash(h){ try { history.replaceState(null, "", h ? "#"+h : location.pathname + location.search); } catch(e){} }
+function setLayout(){
+  const onMap = state.view === "map";
+  $("#mapView").hidden = !onMap;
+  $("#stampsView").hidden = onMap;
+  $("#stampsView").classList.toggle("stampbook", true);
+  document.querySelectorAll(".stat").forEach(b => b.setAttribute("aria-current", b.dataset.view === state.view ? "page" : "false"));
+  $("#panel").hidden = !state.focus;
+  $("#mapView").classList.toggle("solo", !state.focus);
+  document.querySelectorAll(".tab").forEach(b => b.setAttribute("aria-current", b.dataset.view === state.view ? "page" : "false"));
+}
+function relayout(){
+  if (state.view !== "map" || !countries.length) return false;
+  const oldW = W, oldH = H; sizeMap();
+  if (Math.abs(oldW - W) < 2 && oldH === H) return false;
+  drawWorld(); drawRegions(); return true;
+}
+function showStamps(push = true, view = "stamps"){
+  state.view = view; hideTip();
+  if (push) setHash(view);
+  setLayout(); renderPanel(); window.scrollTo(0, 0);
+}
+function showMap(){
+  state.view = "map";
+  setHash(state.focus || "");
+  setLayout();
+  if (relayout()){
+    if (state.focus) zoomToBounds(mainBounds(byId.get(state.focus).f), 0); else svg.call(zoom.transform, homeT());
+  }
+}
+document.querySelectorAll(".tab[data-view], .stat").forEach(b => b.addEventListener("click", () => b.dataset.view === "map" ? showMap() : showStamps(true, b.dataset.view)));
+$("#stampsView").addEventListener("click", e => {
+  const go = e.target.closest("[data-go]"); if (go){ openCountry(go.dataset.go); return; }
+  if (e.target.closest("#compNew")){ state.compForm = {name: "", emoji: AVATARS[state.companions.length % AVATARS.length], _k:newKey()}; state.compErr = ""; renderPanel(); const i = document.querySelector('#compForm input[name="name"]'); if (i) i.focus(); return; }
+  if (e.target.closest("#sortStart")){ state.sortIds = state.companions.map(c => c.id); state.compConfirmDel = null; renderPanel(); return; }
+  if (e.target.closest("#sortCancel")){ state.sortIds = null; renderPanel(); return; }
+  if (e.target.closest("#sortDone")){ saveSort(); return; }
+  const mv = e.target.closest("[data-move]");
+  if (mv && state.sortIds){ moveComp(mv.dataset.mid, state.sortIds.indexOf(mv.dataset.mid) + Number(mv.dataset.move)); return; }
+  if (e.target.closest("#compCancel")){ state.compForm = null; state.compErr = ""; renderPanel(); return; }
+  const em = e.target.closest("[data-emoji]"); if (em && state.compForm){ syncCompForm(); state.compForm.emoji = em.dataset.emoji; renderPanel(); return; }
+  const ce = e.target.closest("[data-compedit]");
+  if (ce){ const c = compById(ce.dataset.compedit); if (c){ state.compForm = {id: c.id, name: c.name, emoji: c.emoji, _k:newKey()}; state.compErr = ""; state.compConfirmDel = null; renderPanel(); window.scrollTo({top: 0, behavior: "smooth"}); } return; }
+  const cd = e.target.closest("[data-compdel]");
+  if (cd){ const id = cd.dataset.compdel; if (state.compConfirmDel !== id){ state.compConfirmDel = id; renderPanel(); } else deleteCompanion(id); }
+});
+$("#stampsView").addEventListener("submit", async e => {
+  if (e.target.id !== "compForm") return;
+  e.preventDefault(); syncCompForm();
+  const f = state.compForm; if (!f || state.compSaving) return;
+  if (!f.name.trim()){ state.compErr = "請輸入名字"; renderPanel(); return; }
+  state.compSaving = true; renderPanel();
+  if (f.id){
+    try { const old = compById(f.id); await state.db.collection("companions").doc(f.id).update({name: f.name.trim(), emoji: f.emoji}); state.compForm = null; }
+    catch(err){ state.compErr = compErrText(err); }
+  } else {
+    const id = await createCompanion(f.name.trim(), f.emoji);
+    if (id) state.compForm = null;
+  }
+  state.compSaving = false; renderPanel();
+});
+let dragId = null;
+$("#stampsView").addEventListener("dragstart", e => { const c = e.target.closest("[data-sid]"); if (!c) return; dragId = c.dataset.sid; c.classList.add("dragging"); try { e.dataTransfer.effectAllowed = "move"; e.dataTransfer.setData("text/plain", dragId); } catch(_){} });
+$("#stampsView").addEventListener("dragover", e => { const c = e.target.closest("[data-sid]"); if (!c || !dragId) return; e.preventDefault(); document.querySelectorAll(".friend.over").forEach(x => x !== c && x.classList.remove("over")); if (c.dataset.sid !== dragId) c.classList.add("over"); });
+$("#stampsView").addEventListener("drop", e => { const c = e.target.closest("[data-sid]"); if (!c || !dragId) return; e.preventDefault(); const to = state.sortIds.indexOf(c.dataset.sid); const id = dragId; dragId = null; moveComp(id, to); });
+$("#stampsView").addEventListener("dragend", () => { dragId = null; document.querySelectorAll(".friend.dragging,.friend.over").forEach(x => x.classList.remove("dragging","over")); });
+function moveComp(id, to){
+  const a = state.sortIds, from = a.indexOf(id);
+  if (from < 0 || to < 0 || to >= a.length || from === to) { renderPanel(); return; }
+  a.splice(from, 1); a.splice(to, 0, id); renderPanel();
+}
+async function saveSort(){
+  if (!state.sortIds || state.sortSaving) return;
+  state.sortSaving = true; renderPanel();
+  try {
+    const ids = [...state.sortIds];
+    for (let i = 0; i < ids.length; i++){
+      const c = compById(ids[i]);
+      if (c && c.order !== i) await state.db.collection("companions").doc(ids[i]).update({order: i});
+    }
+    state.sortIds = null;
+  } catch(err){ state.compErr = "排序儲存失敗，請稍後再試。"; }
+  state.sortSaving = false; renderPanel();
+}
+function syncCompForm(){ const f = $("#compForm"); if (f && state.compForm && f.dataset.k === state.compForm._k) state.compForm.name = f.elements.name.value; }
+function newKey(){ return Math.random().toString(36).slice(2, 10); }
+$("#stampsView").addEventListener("keydown", e => { const go = e.target.closest("span[data-go]"); if (go && (e.key === "Enter" || e.key === " ")){ e.preventDefault(); openCountry(go.dataset.go); } });
+
+/* ---------- panel events ---------- */
+$("#panel").addEventListener("click", e => {
+  const go = e.target.closest("[data-go]"); if (go){ openCountry(go.dataset.go); return; }
+  const ed = e.target.closest("[data-edit]");
+  if (ed){
+    const t = state.trips.find(x => x.id === ed.dataset.edit); if (!t) return;
+    state.editing = {id:t.id, country:t.country, title:t.title||"", url:t.url||"", start:t.start||"", end:t.end||"", note:t.note||"", regions:(t.regions||[]).map(r=>({id:r.id,n:r.n})), companions:[...(t.companions||[])], _k:newKey()};
+    state.formErr = ""; state.confirmDel = null; renderPanel(); drawRegions(); return;
+  }
+  const del = e.target.closest("[data-del]");
+  if (del){
+    const id = del.dataset.del;
+    if (state.confirmDel !== id){ state.confirmDel = id; renderPanel(); return; }
+    deleteTrip(id); return;
+  }
+  const un = e.target.closest("[data-unpick]");
+  if (un){ syncForm(); state.editing.regions = state.editing.regions.filter(r => r.id !== un.dataset.unpick); renderPanel(); drawRegions(); return; }
+  if (e.target.closest("#addTrip")){
+    state.editing = {country: state.focus, title:"", url:"", start:"", end:"", note:"", regions:[], companions:[], _k:newKey()};
+    state.formErr = ""; state.confirmDel = null; renderPanel(); drawRegions();
+    const i = document.querySelector('#editForm input[name="title"]'); if (i) i.focus();
+    return;
+  }
+  if (e.target.closest("#cancelEdit")){ state.editing = null; state.formErr = ""; state.quickName = ""; renderPanel(); drawRegions(); return; }
+  const tc = e.target.closest("[data-tcomp]");
+  if (tc && state.editing){
+    syncForm();
+    const id = tc.dataset.tcomp, a = state.editing.companions;
+    const i = a.indexOf(id); if (i >= 0) a.splice(i, 1); else a.push(id);
+    renderPanel(); return;
+  }
+  if (e.target.closest("#quickAdd")) quickAddCompanion();
+});
+$("#panel").addEventListener("keydown", e => { if (e.target.id === "quickName" && e.key === "Enter"){ e.preventDefault(); quickAddCompanion(); } });
+async function quickAddCompanion(){
+  syncForm();
+  const name = (state.quickName || "").trim();
+  if (!name || !state.editing) return;
+  const id = await createCompanion(name, AVATARS[state.companions.length % AVATARS.length]);
+  if (id && state.editing && !state.editing.companions.includes(id)) state.editing.companions.push(id);
+  state.quickName = ""; const q0 = $("#quickName"); if (q0) q0.value = "";
+  renderPanel();
+  const q = $("#quickName"); if (q) q.focus();
+}
+$("#panel").addEventListener("submit", e => { e.preventDefault(); syncForm(); saveTrip(); });
+
+function syncForm(){
+  const f = $("#editForm"); if (!f || !state.editing || f.dataset.k !== state.editing._k) return;
+  for (const k of ["title","url","start","end","note"]) state.editing[k] = f.elements[k].value.trim();
+  const q = $("#quickName"); if (q) state.quickName = q.value;
+}
+function toggleRegion(d){
+  if (!state.editing || state.editing.country !== state.focus) return;
+  syncForm();
+  const r = state.editing.regions;
+  const i = r.findIndex(x => x.id === d.id);
+  if (i >= 0) r.splice(i, 1); else r.push({id: d.id, n: d.n});
+  renderPanel(); drawRegions();
+}
+
+/* ---------- db ---------- */
+async function saveTrip(){
+  const e = state.editing; if (!e || state.saving) return;
+  if (!e.title){ state.formErr = "請填寫手冊名稱"; renderPanel(); return; }
+  if (e.url && !safeUrl(e.url)){ state.formErr = "手冊連結要以 https:// 開頭"; renderPanel(); return; }
+  if (e.start && e.end && e.end < e.start){ state.formErr = "回程日不能早於出發日"; renderPanel(); return; }
+  state.saving = true; state.formErr = ""; renderPanel();
+  const body = {country:e.country, title:e.title, url:e.url, start:e.start, end:e.end, note:e.note, regions:e.regions, companions:e.companions.filter(id => compById(id)), updatedAt:new Date().toISOString()};
+  try {
+    const ref = e.id ? state.db.collection("trips").doc(e.id) : state.db.collection("trips").doc();
+    await ref.set(body);
+    state.editing = null;
+  } catch(err){
+    if (err && err.code === "invalid_argument"){ state.formErr = "沒有寫入權限：請按右上角 🔑 重新輸入 GitHub 金鑰。"; }
+    else if (err && err.code === "quota_exceeded"){ state.formErr = "儲存空間已滿，請先刪除一些旅程。"; }
+    else state.formErr = "儲存失敗，請稍後再試一次。";
+  }
+  state.saving = false; renderPanel(); drawRegions(); paintWorld();
+}
+async function deleteTrip(id){
+  try { await state.db.collection("trips").doc(id).delete(); }
+  catch(err){ state.dbNote = "刪除失敗，請稍後再試。"; }
+  state.confirmDel = null; renderPanel();
+}
+
+function applyTrips(docs){
+  state.trips = docs.map(d => {
+    const x = d.data() || {};
+    return {id: d.id, country: String(x.country||""), title: String(x.title||""), url: String(x.url||""),
+      start: /^\d{4}-\d{2}-\d{2}$/.test(x.start) ? x.start : "", end: /^\d{4}-\d{2}-\d{2}$/.test(x.end) ? x.end : "",
+      note: String(x.note||""), regions: Array.isArray(x.regions) ? x.regions.filter(r => r && r.id).map(r => ({id:String(r.id), n:String(r.n||r.id)})) : [],
+      companions: Array.isArray(x.companions) ? x.companions.filter(c => typeof c === "string") : []};
+  });
+  state.tripsLoaded = true;
+  updateStats(); paintWorld(); drawRegions(); renderPanel();
+}
+function updateStats(){
+  const done = state.trips.filter(t => ["v","o"].includes(tripStatus(t)));
+  $("#sCountries").textContent = new Set(done.map(t => t.country)).size;
+  $("#sUpcoming").textContent = state.trips.filter(t => tripStatus(t) === "u").length;
+}
+
+/* ---------- GitHub data store (data/*.json in this repo) ---------- */
+const GH = { owner: "Siderpan", repo: "travel-map", branch: "main", dir: "data/" };
+const TOKEN_KEY = "travelmap.ghToken";
+function getToken(){ try { return localStorage.getItem(TOKEN_KEY) || ""; } catch(e){ return ""; } }
+function setToken(t){ try { if (t) localStorage.setItem(TOKEN_KEY, t); else localStorage.removeItem(TOKEN_KEY); } catch(e){} }
+function makeGhDb(){
+  const cache = {}, shas = {}, subs = {}, loading = {};
+  const file = c => GH.dir + c + ".json";
+  const b64dec = s => new TextDecoder().decode(Uint8Array.from(atob(s.replace(/\n/g, "")), ch => ch.charCodeAt(0)));
+  const b64enc = s => { let bin = ""; new TextEncoder().encode(s).forEach(b => bin += String.fromCharCode(b)); return btoa(bin); };
+  const api = (path, opts = {}) => fetch(`https://api.github.com/repos/${GH.owner}/${GH.repo}/contents/${path}` + (opts.method ? "" : `?ref=${GH.branch}&t=${Date.now()}`), {
+    ...opts, cache: "no-store",
+    headers: {Accept: "application/vnd.github+json", ...(getToken() ? {Authorization: "Bearer " + getToken()} : {})}
+  });
+  async function readRemote(c){
+    const r = await api(file(c));
+    if (r.status === 404){ shas[c] = null; return []; }
+    if (!r.ok) throw {code: r.status === 401 || r.status === 403 ? "auth" : "unavailable"};
+    const j = await r.json(); shas[c] = j.sha; return JSON.parse(b64dec(j.content));
+  }
+  async function readPublic(c){
+    const r = await fetch(file(c) + "?t=" + Date.now(), {cache: "no-store"});
+    if (r.status === 404) return [];
+    if (!r.ok) throw {code: "unavailable"};
+    return r.json();
+  }
+  function emit(c){
+    const snap = {docs: (cache[c] || []).map(o => { const {id, ...rest} = o; return {id: String(id), exists: true, data: () => rest}; }), metadata: {fromCache: false, hasPendingWrites: false}};
+    (subs[c] || []).forEach(s => s.next(snap));
+  }
+  async function load(c){
+    try {
+      let arr;
+      if (getToken()){ try { arr = await readRemote(c); } catch(e){ arr = await readPublic(c); } }
+      else arr = await readPublic(c);
+      cache[c] = Array.isArray(arr) ? arr : []; emit(c);
+    } catch(e){ (subs[c] || []).forEach(s => s.error && s.error(e)); }
+  }
+  let queue = Promise.resolve();
+  function mutate(c, fn){
+    const run = async () => {
+      if (!getToken()) throw {code: "invalid_argument", auth: true};
+      for (let attempt = 0; attempt < 3; attempt++){
+        let arr;
+        try { arr = await readRemote(c); } catch(e){ if (e.code === "auth") throw {code: "invalid_argument", auth: true}; throw e; }
+        const next = fn(arr.map(o => ({...o})));
+        const body = {message: `travel-map: 更新 ${c}`, content: b64enc(JSON.stringify(next, null, 2) + "\n"), branch: GH.branch};
+        if (shas[c]) body.sha = shas[c];
+        const r = await api(file(c), {method: "PUT", body: JSON.stringify(body)});
+        if (r.ok){ const j = await r.json(); shas[c] = j.content.sha; cache[c] = next; emit(c); return; }
+        if (r.status === 401 || r.status === 403 || r.status === 404) throw {code: "invalid_argument", auth: true};
+        if (r.status !== 409 && r.status !== 422) throw {code: "unavailable"};
+      }
+      throw {code: "unavailable"};
+    };
+    const p = queue.then(run, run); queue = p.catch(() => {}); return p;
+  }
+  const newId = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+  return {
+    reload(){ return Promise.all(Object.keys(subs).map(load)); },
+    collection: c => ({
+      onSnapshot(next, error){
+        (subs[c] = subs[c] || []).push({next, error});
+        if (cache[c]) setTimeout(() => emit(c), 0); else if (!loading[c]){ loading[c] = true; load(c); }
+        return () => {};
+      },
+      doc(id){
+        id = id || newId();
+        return { id,
+          set: data => mutate(c, arr => { const o = {id, ...data}; const i = arr.findIndex(x => x.id === id); if (i >= 0) arr[i] = o; else arr.push(o); return arr; }),
+          update: data => mutate(c, arr => { const i = arr.findIndex(x => x.id === id); if (i < 0) throw {code: "invalid_argument"}; arr[i] = {...arr[i], ...data}; return arr; }),
+          delete: () => mutate(c, arr => arr.filter(x => x.id !== id))
+        };
+      }
+    })
+  };
+}
+async function checkToken(t){
+  const r = await fetch(`https://api.github.com/repos/${GH.owner}/${GH.repo}`, {headers: {Accept: "application/vnd.github+json", Authorization: "Bearer " + t}, cache: "no-store"});
+  if (!r.ok) return false;
+  const j = await r.json(); return !!(j.permissions && j.permissions.push);
+}
+
+async function initDb(){
+  const db = makeGhDb();
+  state.db = db;
+  state.canEdit = !!getToken();
+  const timer = setTimeout(() => { if (!state.tripsLoaded){ state.dbNote = "旅程資料暫時連不上，稍後會自動更新。"; renderPanel(); } }, 10000);
+  db.collection("companions").onSnapshot(snap => {
+    state.companions = snap.docs.map(d => { const x = d.data() || {}; return {id: d.id, name: String(x.name || "").slice(0, 20) || "旅伴", emoji: AVATARS.includes(x.emoji) ? x.emoji : AVATARS[0], createdAt: String(x.createdAt || ""), order: typeof x.order === "number" ? x.order : null}; })
+      .sort((a, b) => ((a.order ?? 1e9) - (b.order ?? 1e9)) || a.createdAt.localeCompare(b.createdAt));
+    if (state.sortIds){ const ids = new Set(state.companions.map(c => c.id)); state.sortIds = state.sortIds.filter(id => ids.has(id)).concat(state.companions.map(c => c.id).filter(id => !state.sortIds.includes(id))); }
+    state.compLoaded = true; renderPanel();
+  }, () => { state.compLoaded = true; });
+  db.collection("trips").onSnapshot(snap => {
+    if (!snap.metadata.fromCache){ clearTimeout(timer); if (state.dbNote.startsWith("旅程資料暫時")) state.dbNote = ""; }
+    applyTrips(snap.docs);
+  }, err => {
+    clearTimeout(timer);
+    state.dbNote = err && err.code === "revoked" ? "目前無法讀取旅程資料。" : "旅程資料讀取失敗，請重新整理頁面。";
+    state.tripsLoaded = true; renderPanel();
+  });
+}
+
+/* ---------- clouds ---------- */
+function clouds(){
+  const card = $("#mapcard");
+  const cloud = w => `<svg width="${w}" viewBox="0 0 80 40"><path d="M14 34h52a12 12 0 0 0 0-24 16 16 0 0 0-30-4A13 13 0 0 0 14 34z" fill="#fff" stroke="#2B2F55" stroke-width="2.5" stroke-linejoin="round"/></svg>`;
+  [[70,"18%",48,-8],[54,"62%",64,-30],[44,"40%",80,-55]].forEach(([w, top, dur, delay]) => {
+    const d = document.createElement("div"); d.className = "cloud"; d.style.top = top; d.style.left = "0";
+    d.style.animationDuration = dur + "s"; d.style.animationDelay = delay + "s"; d.innerHTML = cloud(w); card.appendChild(d);
+  });
+}
+
+/* ---------- boot ---------- */
+async function boot(){
+  renderPanel();
+  sizeMap();
+  initDb();
+  let topo;
+  try { topo = await (await fetch("data/world.json")).json(); }
+  catch(e){ $("#panel").innerHTML = `<div class="note warn">地圖資料載入失敗，請重新整理。</div>`; return; }
+  countries = topojson.feature(topo, topo.objects.admin0).features
+    .filter(f => f.properties.id !== "ATA")
+    .map(f => ({id: f.properties.id, n: f.properties.n || f.properties.en, en: f.properties.en, c: f.properties.c, lx: f.properties.lx, ly: f.properties.ly, f}));
+  countries.forEach(c => { c.f.id = c.id; byId.set(c.id, c); });
+  drawWorld();
+  svg.call(zoom.transform, homeT());
+  loadHiRes();
+  clouds();
+  $("#countryList").innerHTML = [...countries].sort((a,b) => a.n.localeCompare(b.n, "zh-Hant")).map(c => `<option value="${esc(c.n)}">${esc(c.en)}</option>`).join("");
+  const h = location.hash.slice(1);
+  if (byId.has(h)) openCountry(h, false);
+  else if (LIST_VIEWS.includes(h)) showStamps(false, h);
+}
+$("#backBtn").addEventListener("click", backToWorld);
+$("#homeLink").addEventListener("click", e => {
+  e.preventDefault();
+  if (state.focus) backToWorld();
+  else { showMap(); svg.transition().duration(600).ease(d3.easeCubicInOut).call(zoom.transform, homeT()); }
+  window.scrollTo({top: 0, behavior: "smooth"});
+});
+$("#zin").addEventListener("click", () => svg.transition().duration(300).call(zoom.scaleBy, 1.6));
+$("#zout").addEventListener("click", () => svg.transition().duration(300).call(zoom.scaleBy, 1/1.6));
+$("#q").addEventListener("change", e => {
+  const v = e.target.value.trim(); if (!v) return;
+  const c = countries.find(x => x.n === v || x.en.toLowerCase() === v.toLowerCase()) || countries.find(x => x.n.includes(v) || x.en.toLowerCase().includes(v.toLowerCase()));
+  if (c){ openCountry(c.id); e.target.value = ""; e.target.blur(); }
+});
+window.addEventListener("hashchange", () => {
+  const h = location.hash.slice(1);
+  if (LIST_VIEWS.includes(h)){ if (state.view !== h) showStamps(false, h); }
+  else if (byId.has(h)){ if (h !== state.focus || state.view !== "map") openCountry(h, false); }
+  else if (!h){ if (state.focus) backToWorld(); else if (state.view !== "map") showMap(); }
+});
+let rt; window.addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(() => {
+  if (!relayout()) return;
+  if (state.focus) zoomToBounds(mainBounds(byId.get(state.focus).f), 0); else svg.call(zoom.transform, homeT());
+}, 200); });
+
+/* ---------- admin (GitHub token) ---------- */
+function renderAdmin(msg){
+  const t = getToken();
+  $("#adminBtn").classList.toggle("on", !!t);
+  $("#adminBody").innerHTML = t ? `
+    <p>✅ 這個瀏覽器已開啟管理模式，可以新增、修改旅程與旅伴。每次儲存都會寫進 GitHub 上的資料檔，網站約 1 分鐘後更新。</p>
+    ${msg ? `<div class="err">${esc(msg)}</div>` : ""}
+    <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn pink" id="adminLogout">登出管理模式</button><button class="btn ghost" id="adminClose">關閉</button></div>` : `
+    <p>網站給所有人瀏覽；只有輸入 GitHub 金鑰的人可以修改資料。金鑰只存在這台裝置的瀏覽器裡，不會上傳到任何地方。</p>
+    <ol>
+      <li>到 GitHub → Settings → Developer settings → Fine-grained tokens 產生新金鑰</li>
+      <li>Repository access 只選 <b>${GH.owner}/${GH.repo}</b></li>
+      <li>Permissions → Contents 設為 <b>Read and write</b></li>
+    </ol>
+    <input id="tokenInput" type="password" autocomplete="off" placeholder="貼上 github_pat_… 金鑰">
+    ${msg ? `<div class="err">${esc(msg)}</div>` : ""}
+    <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn mint" id="adminSave">開啟管理模式</button><button class="btn ghost" id="adminClose">關閉</button></div>`;
+}
+$("#adminBtn").addEventListener("click", () => { renderAdmin(); $("#adminDlg").hidden = false; const i = $("#tokenInput"); if (i) i.focus(); });
+$("#adminDlg").addEventListener("click", async e => {
+  if (e.target.id === "adminDlg" || e.target.closest("#adminClose")){ $("#adminDlg").hidden = true; return; }
+  if (e.target.closest("#adminLogout")){ setToken(""); state.canEdit = false; state.editing = null; state.compForm = null; state.sortIds = null; renderAdmin(); renderPanel(); return; }
+  if (e.target.closest("#adminSave")){
+    const t = ($("#tokenInput").value || "").trim(); if (!t) return;
+    e.target.closest("#adminSave").disabled = true;
+    let ok = false; try { ok = await checkToken(t); } catch(_){}
+    if (!ok){ renderAdmin("這個金鑰無法寫入 " + GH.owner + "/" + GH.repo + "，請確認權限設定。"); return; }
+    setToken(t); state.canEdit = true; state.readOnly = false; state.dbNote = "";
+    renderAdmin(); renderPanel(); state.db.reload();
+    setTimeout(() => { $("#adminDlg").hidden = true; }, 900);
+  }
+});
+document.addEventListener("keydown", e => { if (e.key === "Escape") $("#adminDlg").hidden = true; });
+$("#adminBtn").classList.toggle("on", !!getToken());
+
+boot();
+})();
+</script>
+</body>
+</html>
