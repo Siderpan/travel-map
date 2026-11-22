@@ -137,6 +137,7 @@ header .sub{font-size:13px;color:var(--muted);margin-top:2px}
 .land path:hover{filter:brightness(1.06) saturate(1.2)}
 .shadow path{fill:var(--edge);stroke:var(--edge)}
 .land path.dim{opacity:.38}
+.land path.under{fill-opacity:0;stroke-opacity:0}
 .land path.focus{opacity:1}
 .regions path{stroke:var(--edge);stroke-linejoin:round;cursor:pointer;transition:fill .2s}
 .regions path:hover{fill:var(--sky)!important}
@@ -630,7 +631,7 @@ function applyTransform(){
   K = t.k;
   onZoomScale(true);
 }
-const zoom = d3.zoom().scaleExtent([1, 220])
+const zoom = d3.zoom().scaleExtent([1, 1000])
   .on("start", () => { wrapEl.classList.add("zooming"); clearTimeout(endTimer); try { fxEl.pauseAnimations(); } catch(e){} })
   .on("zoom", ev => { pendingT = ev.transform; if (!rafId) rafId = requestAnimationFrame(applyTransform); })
   .on("end", () => {
@@ -692,7 +693,10 @@ function paintWorld(){
   landG.selectAll("path")
     .attr("fill", d => { const s = countryStatus(d.id); return s ? STATUS_FILL[s] : UNVISITED; })
     .classed("dim", d => isDim(d.id));
-  shadowG.selectAll("path").classed("off", d => isDim(d.id));
+  // 放大到某國且有縣市資料時，底下的國家輪廓藏起來，避免和縣市邊界對不齊露出色塊
+  const under = id => state.focus === id && Array.isArray(state.regions[id]) && state.regions[id].length > 0;
+  landG.selectAll("path").classed("under", d => under(d.id));
+  shadowG.selectAll("path").classed("off", d => isDim(d.id) || under(d.id));
   document.querySelectorAll(".legend button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.st === state.legendSt)));
 
   // markers & arcs
@@ -860,7 +864,7 @@ async function openCountry(id, push = true){
   paintWorld(); drawRegions(); renderPanel();
   zoomToBounds(mainBounds(c.f));
   await loadRegions(id);
-  if (state.focus === id){ drawRegions(); renderPanel(); }
+  if (state.focus === id){ paintWorld(); drawRegions(); renderPanel(); }
 }
 function backToWorld(){
   state.focus = null; state.editing = null; state.confirmDel = null; state.legendSt = null;
