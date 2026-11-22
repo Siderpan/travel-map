@@ -65,6 +65,44 @@ header .sub{font-size:13px;color:var(--muted);margin-top:2px}
 .stat:hover{transform:translate(-2px,-3px);box-shadow:5px 6px 0 var(--edge)}
 .stat:active{transform:translate(1px,1px);box-shadow:1px 1px 0 var(--edge)}
 .stat[aria-current="page"]{transform:rotate(-3deg) translateY(-2px);box-shadow:4px 5px 0 var(--edge);outline:3px dashed var(--edge);outline-offset:3px}
+.tab .cnt{font-family:var(--f-pop);font-size:11px;background:var(--pink-soft);border:1.5px solid var(--edge);border-radius:999px;padding:0 6px;margin-left:2px}
+.tab .cnt:empty{display:none}
+.achsum{display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:var(--paper);border:2.5px solid var(--edge);border-radius:999px;padding:5px 14px;box-shadow:2px 2px 0 var(--edge)}
+.achsum b{font-family:var(--f-pop);font-size:22px;font-weight:400}
+.achsum span{font-size:13px;font-weight:700;color:var(--muted)}
+.achbar{width:140px;height:12px;border:2px solid var(--edge);border-radius:999px;background:var(--sky-soft);overflow:hidden}
+.achbar i{display:block;height:100%;background:repeating-linear-gradient(-45deg,var(--sun) 0 6px,#FFC93C 6px 12px)}
+.agrp{display:flex;flex-direction:column;gap:12px;margin-top:8px}
+.agrp+.agrp{margin-top:18px;padding-top:16px;border-top:2.5px dashed var(--hair)}
+.badges{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px}
+.badge{position:relative;display:flex;flex-direction:column;align-items:center;text-align:center;gap:4px;padding:16px 10px 12px;border:2.5px solid var(--edge);border-radius:20px;background:var(--paper);box-shadow:2px 2px 0 var(--edge);transition:transform .2s cubic-bezier(.34,1.56,.64,1)}
+.badge.ok{background-color:var(--sun-soft);background-image:radial-gradient(rgba(255,255,255,.8) 1.6px,transparent 2px);background-size:14px 14px}
+.badge.ok:hover{transform:translateY(-4px) rotate(-2deg)}
+.badge b{font-family:var(--f-display);font-weight:400;font-size:16px;margin-top:4px}
+.badge small{font-size:11.5px;color:var(--muted);font-weight:700;line-height:1.4}
+.badge em{font-style:normal;font-size:11.5px;font-weight:700;color:var(--muted)}
+.badge .when{background:var(--paper);border:2px solid var(--edge);border-radius:999px;padding:0 8px;color:var(--ink);margin-top:2px}
+.medal{position:relative;width:66px;height:72px}
+.medal .coin{position:absolute;left:3px;top:0;width:60px;height:60px;border-radius:50%;border:3px solid var(--edge);background:radial-gradient(circle at 35% 30%,#FFF3B0,#FFD65A 60%,#F2B92B);display:grid;place-items:center;font-size:30px;box-shadow:2px 3px 0 var(--edge);z-index:1}
+.medal .coin::after{content:"";position:absolute;inset:4px;border-radius:50%;border:2px dashed rgba(43,47,85,.35)}
+.medal .ribbon-l,.medal .ribbon-r{position:absolute;bottom:0;width:18px;height:28px;border:2.5px solid var(--edge);background:var(--pink)}
+.medal .ribbon-l{left:12px;transform:skewY(18deg) rotate(14deg)}
+.medal .ribbon-r{right:12px;background:var(--sky);transform:skewY(-18deg) rotate(-14deg)}
+.badge.ok .medal{animation:shine 3.2s ease-in-out infinite}
+@keyframes shine{0%,85%,100%{transform:rotate(0)}90%{transform:rotate(-8deg) scale(1.06)}95%{transform:rotate(6deg) scale(1.06)}}
+.badge.lock .coin{background:#ECEAF3;filter:grayscale(1);opacity:.55}
+.badge.lock .ribbon-l,.badge.lock .ribbon-r{background:#D9D6E5}
+.badge.lock b{color:var(--muted)}
+.medal .lk{position:absolute;right:-2px;top:-4px;z-index:2;font-size:16px;background:var(--paper);border:2px solid var(--edge);border-radius:50%;width:26px;height:26px;display:grid;place-items:center}
+.aprog{width:80%;height:8px;border:2px solid var(--edge);border-radius:999px;background:var(--paper);overflow:hidden;margin-top:4px}
+.aprog i{display:block;height:100%;background:var(--mint)}
+.achtoast{position:fixed;z-index:60;left:50%;bottom:22px;transform:translate(-50%,140%);display:flex;align-items:center;gap:12px;background:var(--paper);border:2.5px solid var(--edge);border-radius:20px;padding:10px 16px 10px 10px;box-shadow:4px 4px 0 var(--edge);cursor:pointer;transition:transform .45s cubic-bezier(.34,1.56,.64,1);max-width:calc(100% - 24px)}
+.achtoast.show{transform:translate(-50%,0)}
+.achtoast .atb{width:44px;height:44px;border-radius:50%;background:var(--sun);border:2.5px solid var(--edge);display:grid;place-items:center;font-size:22px;flex:0 0 auto}
+.achtoast b{display:block;font-family:var(--f-display);font-weight:400;font-size:17px}
+.achtoast span{font-size:13px;color:var(--muted);font-weight:700}
+@media (max-width:600px){.badges{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.achbar{width:90px}}
+@media (prefers-reduced-motion:reduce){.badge.ok .medal{animation:none}}
 .sbtools{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .sorter{display:inline-flex;align-items:center;gap:4px;background:var(--paper);border:2.5px solid var(--edge);border-radius:999px;padding:3px;box-shadow:2px 2px 0 var(--edge)}
 .sorter .slabel{font-size:12px;font-weight:700;color:var(--muted);padding:0 6px 0 8px}
@@ -426,6 +464,7 @@ footer{font-size:11.5px;color:var(--muted);text-align:center;margin-top:18px}
       <button class="tab" data-view="map" aria-current="page">🗺️ 世界地圖</button>
       <button class="tab" data-view="stamps">📒 我的集章冊</button>
       <button class="tab" data-view="friends">👫 旅伴</button>
+      <button class="tab" data-view="badges">🏅 成就 <span class="cnt"></span></button>
       <button class="tab keybtn" id="adminBtn" title="管理模式" aria-label="管理模式">🔑</button>
     </nav>
     <div class="stats" aria-live="polite">
@@ -1099,8 +1138,134 @@ function setSort(mode){
 }
 document.addEventListener("click", e => { const b = e.target.closest("[data-sort]"); if (b) setSort(b.dataset.sort); });
 
+/* ---------- achievements ---------- */
+const A1_COUNT = {"ABW":1,"AFG":34,"AGO":18,"AIA":15,"ALB":12,"ALD":11,"AND":7,"ARE":9,"ARG":24,"ARM":11,"ASM":5,"ATA":2,"ATC":1,"ATF":4,"ATG":8,"AUS":11,"AUT":9,"AZE":78,"BDI":17,"BEL":11,"BEN":12,"BFA":45,"BGD":7,"BGR":28,"BHR":5,"BHS":30,"BIH":18,"BLM":1,"BLR":7,"BLZ":6,"BMU":11,"BOL":9,"BRA":27,"BRB":11,"BRN":4,"BTN":20,"BWA":15,"CAF":17,"CAN":13,"CHE":26,"CHL":16,"CHN":32,"CIV":19,"CMR":10,"COD":11,"COG":12,"COK":11,"COL":34,"COM":3,"CPV":22,"CRI":7,"CUB":16,"CUW":1,"CYM":1,"CYN":1,"CYP":5,"CZE":14,"DEU":16,"DJI":6,"DMA":10,"DNK":5,"DOM":32,"DZA":48,"ECU":24,"EGY":27,"ERI":6,"ESP":52,"EST":15,"ETH":11,"FIN":18,"FJI":5,"FLK":1,"FRA":101,"FRO":1,"FSM":4,"GAB":9,"GBR":232,"GEO":12,"GGY":1,"GHA":10,"GIN":34,"GMB":6,"GNB":9,"GNQ":7,"GRC":14,"GRD":7,"GRL":6,"GTM":22,"GUM":1,"GUY":10,"HKG":18,"HMD":1,"HND":18,"HRV":21,"HTI":10,"HUN":43,"IDN":33,"IMN":1,"IND":36,"IOA":2,"IOT":1,"IRL":34,"IRN":31,"IRQ":18,"ISL":9,"ISR":6,"ITA":110,"JAM":14,"JEY":1,"JOR":12,"JPN":47,"KAS":1,"KAZ":16,"KEN":8,"KGZ":8,"KHM":24,"KIR":2,"KNA":14,"KOR":17,"KOS":30,"KWT":6,"LAO":17,"LBN":6,"LBR":15,"LBY":22,"LCA":11,"LIE":11,"LKA":25,"LSO":10,"LTU":10,"LUX":3,"LVA":119,"MAC":1,"MAF":1,"MAR":16,"MCO":1,"MDA":40,"MDG":22,"MDV":21,"MEX":33,"MHL":2,"MKD":84,"MLI":9,"MLT":68,"MMR":14,"MNE":21,"MNG":22,"MNP":4,"MOZ":11,"MRT":13,"MSR":3,"MUS":16,"MWI":28,"MYS":16,"NAM":13,"NCL":3,"NER":8,"NFK":1,"NGA":37,"NIC":17,"NIU":1,"NLD":15,"NOR":21,"NPL":14,"NRU":14,"NZL":24,"OMN":11,"PAK":8,"PAN":12,"PCN":1,"PER":26,"PHL":118,"PLW":16,"PNG":20,"POL":16,"PRI":1,"PRK":11,"PRT":20,"PRY":18,"PSX":2,"PYF":5,"QAT":7,"ROU":42,"RUS":86,"RWA":5,"SAH":1,"SAU":13,"SDN":17,"SDS":10,"SEN":14,"SGP":5,"SGS":1,"SHN":3,"SLB":10,"SLE":4,"SLV":14,"SMR":9,"SOL":1,"SOM":13,"SPM":2,"SRB":25,"STP":2,"SUR":10,"SVK":8,"SVN":193,"SWE":21,"SWZ":4,"SXM":1,"SYC":26,"SYR":15,"TCA":6,"TCD":22,"TGO":5,"THA":77,"TJK":5,"TKM":5,"TLS":13,"TON":5,"TTO":16,"TUN":23,"TUR":81,"TUV":1,"TWN":21,"TZA":30,"UGA":112,"UKR":25,"URY":19,"USA":51,"UZB":14,"VAT":1,"VCT":6,"VEN":26,"VGB":1,"VIR":3,"VNM":63,"VUT":6,"WLF":3,"WSM":11,"YEM":21,"ZAF":9,"ZMB":10,"ZWE":10};
+const CONTS6 = ["亞洲","歐洲","北美洲","南美洲","非洲","大洋洲"];
+function tripDays(t){ return t.start ? Math.round((new Date((t.end || t.start) + "T00:00:00") - new Date(t.start + "T00:00:00")) / 864e5) + 1 : 0; }
+function seasonOf(d){ const m = +d.slice(5,7); return m >= 3 && m <= 5 ? "春" : m >= 6 && m <= 8 ? "夏" : m >= 9 && m <= 11 ? "秋" : "冬"; }
+// ctx 只算「已出發（去過／旅行中）」的旅程
+function makeCtx(trips){
+  const done = trips.filter(t => ["v","o"].includes(tripStatus(t)));
+  const abroad = new Set(done.map(t => t.country).filter(id => id !== HOME));
+  const countriesAll = new Set([...abroad, HOME]);
+  const conts = new Map();
+  countriesAll.forEach(id => { const c = byId.get(id); const k = c ? CONT_ZH[c.c] : null; if (k && CONTS6.includes(k)) conts.set(k, (conts.get(k) || 0) + 1); });
+  const regions = new Map(); // country -> Set
+  done.forEach(t => t.regions.forEach(r => { if (!regions.has(t.country)) regions.set(t.country, new Set()); regions.get(t.country).add(r.id); }));
+  const regionTotal = [...regions.values()].reduce((n, s) => n + s.size, 0);
+  const perCountry = new Map(); done.forEach(t => perCountry.set(t.country, (perCountry.get(t.country) || 0) + 1));
+  const perYear = new Map(); done.forEach(t => { if (t.start) { const y = t.start.slice(0,4); perYear.set(y, (perYear.get(y) || 0) + 1); } });
+  const perBuddy = new Map(); done.forEach(t => t.companions.forEach(c => { if (compById(c)) perBuddy.set(c, (perBuddy.get(c) || 0) + 1); }));
+  const seasons = new Set(done.filter(t => t.start).map(t => seasonOf(t.start)));
+  const fullCountries = [...regions.entries()].filter(([id, set]) => A1_COUNT[id] && set.size >= A1_COUNT[id]).map(([id]) => id);
+  const bestCover = [...regions.entries()].filter(([id]) => A1_COUNT[id]).map(([id, set]) => ({id, n: set.size, of: A1_COUNT[id]})).sort((a, b) => b.n / b.of - a.n / a.of)[0];
+  return {all: trips, done, abroad, conts, regions, regionTotal, perCountry, perYear, perBuddy, seasons, fullCountries, bestCover};
+}
+const mx = m => m.size ? Math.max(...m.values()) : 0;
+const ACH_GROUPS = [
+  {name:"國家收集", icon:"🗺️", items:[
+    {id:"c1",  e:"🛫", n:"第一次出國",   d:"去過 1 個國外國家",  g:1,  v:x => x.abroad.size},
+    {id:"c3",  e:"🧭", n:"小小旅人",     d:"去過 3 個國外國家",  g:3,  v:x => x.abroad.size},
+    {id:"c10", e:"🎒", n:"背包達人",     d:"去過 10 個國外國家", g:10, v:x => x.abroad.size},
+    {id:"c25", e:"🌍", n:"世界公民",     d:"去過 25 個國外國家", g:25, v:x => x.abroad.size},
+    {id:"c50", e:"👑", n:"地球通",       d:"去過 50 個國外國家", g:50, v:x => x.abroad.size}]},
+  {name:"跨洲冒險", icon:"🌏", items:[
+    {id:"k2",  e:"✈️", n:"跨洲旅人",     d:"足跡踏上 2 個洲",     g:2, v:x => x.conts.size},
+    {id:"k4",  e:"🚀", n:"四海為家",     d:"足跡踏上 4 個洲",     g:4, v:x => x.conts.size},
+    {id:"k6",  e:"🌐", n:"六大洲制霸",   d:"六大洲都去過",        g:6, v:x => x.conts.size},
+    {id:"ka5", e:"🏯", n:"亞洲通",       d:"亞洲去過 5 個國家（含台灣）", g:5, v:x => x.conts.get("亞洲") || 0},
+    {id:"keu", e:"🏰", n:"歐洲初體驗",   d:"第一次去歐洲",        g:1, v:x => x.conts.get("歐洲") || 0},
+    {id:"kna", e:"🗽", n:"北美初登場",   d:"第一次去北美洲",      g:1, v:x => x.conts.get("北美洲") || 0},
+    {id:"ksa", e:"🦙", n:"南美大冒險",   d:"第一次去南美洲",      g:1, v:x => x.conts.get("南美洲") || 0},
+    {id:"kaf", e:"🦒", n:"非洲大地",     d:"第一次去非洲",        g:1, v:x => x.conts.get("非洲") || 0},
+    {id:"koc", e:"🐨", n:"大洋洲衝浪",   d:"第一次去大洋洲",      g:1, v:x => x.conts.get("大洋洲") || 0}]},
+  {name:"區域點亮", icon:"📍", items:[
+    {id:"r1",  e:"✨", n:"點亮第一盞燈", d:"點亮 1 個區域",       g:1,   v:x => x.regionTotal},
+    {id:"r10", e:"💡", n:"區域收集家",   d:"點亮 10 個區域",      g:10,  v:x => x.regionTotal},
+    {id:"r50", e:"🔦", n:"燈火通明",     d:"點亮 50 個區域",      g:50,  v:x => x.regionTotal},
+    {id:"rtw", e:"🏝️", n:"台灣環島",     d:`台灣 ${A1_COUNT.TWN || 21} 個縣市全部點亮`, g:A1_COUNT.TWN || 21, v:x => (x.regions.get("TWN") || new Set()).size},
+    {id:"rjp", e:"🗾", n:"日本全制霸",   d:`日本 ${A1_COUNT.JPN || 47} 個都道府縣全部點亮`, g:A1_COUNT.JPN || 47, v:x => (x.regions.get("JPN") || new Set()).size},
+    {id:"rfull", e:"🏅", n:"一國全制霸", d:"任一個國外國家的區域全部點亮", g:1, v:x => x.fullCountries.filter(id => id !== HOME).length,
+      hint:x => x.bestCover && x.bestCover.id !== HOME ? `目前最接近：${(byId.get(x.bestCover.id) || {}).n} ${x.bestCover.n}/${x.bestCover.of}` : ""}]},
+  {name:"旅程紀錄", icon:"🧳", items:[
+    {id:"t1",  e:"📒", n:"第一枚印章",   d:"完成 1 趟旅程",       g:1,  v:x => x.done.length},
+    {id:"t5",  e:"🧳", n:"旅行常客",     d:"完成 5 趟旅程",       g:5,  v:x => x.done.length},
+    {id:"t10", e:"🛄", n:"集章狂熱",     d:"完成 10 趟旅程",      g:10, v:x => x.done.length},
+    {id:"t20", e:"🏆", n:"護照蓋滿了",   d:"完成 20 趟旅程",      g:20, v:x => x.done.length},
+    {id:"tre", e:"🔁", n:"念念不忘",     d:"同一個國家去 2 次",   g:2,  v:x => mx(x.perCountry)},
+    {id:"tlove", e:"💘", n:"真愛之地",   d:"同一個國家去 5 次",   g:5,  v:x => mx(x.perCountry)},
+    {id:"tyr", e:"📅", n:"一年三遊",     d:"同一年出發 3 趟旅程", g:3,  v:x => mx(x.perYear)},
+    {id:"tlong", e:"🌙", n:"說走就走好久", d:"單趟旅程 10 天以上", g:10, v:x => Math.max(0, ...x.done.map(tripDays))},
+    {id:"tquick", e:"⚡", n:"快閃旅行",  d:"完成一趟 2 天內的旅程", g:1, v:x => x.done.filter(t => t.start && tripDays(t) <= 2).length},
+    {id:"tseason", e:"🍂", n:"四季旅人", d:"春夏秋冬都出發過",    g:4,  v:x => x.seasons.size},
+    {id:"tnye", e:"🎆", n:"跨年在異地",  d:"旅程跨過 12/31 到 1/1", g:1, v:x => x.done.filter(t => t.start && t.end && t.end.slice(0,4) > t.start.slice(0,4)).length}]},
+  {name:"旅伴", icon:"👫", items:[
+    {id:"f1",  e:"🤝", n:"結伴同行",     d:"和旅伴一起完成 1 趟旅程", g:1, v:x => x.done.filter(t => t.companions.some(compById)).length},
+    {id:"fbest", e:"💞", n:"最佳拍檔",   d:"和同一位旅伴去 3 趟",  g:3, v:x => mx(x.perBuddy),
+      hint:x => { let best = null; x.perBuddy.forEach((n, id) => { if (!best || n > best[1]) best = [id, n]; }); return best ? `目前：${compById(best[0]).name} ${best[1]} 趟` : ""; }},
+    {id:"fbig", e:"🎉", n:"浩浩蕩蕩",    d:"單趟旅程有 5 位以上旅伴", g:5, v:x => Math.max(0, ...x.done.map(t => t.companions.filter(compById).length))},
+    {id:"fsolo", e:"🦸", n:"獨行俠",     d:"完成一趟一個人的旅行", g:1, v:x => x.done.filter(t => !t.companions.some(compById)).length}]},
+  {name:"手冊與計畫", icon:"📖", items:[
+    {id:"h1",  e:"📖", n:"手冊作家",     d:"3 趟旅程連結了旅遊手冊", g:3, v:x => x.all.filter(t => safeUrl(t.url)).length},
+    {id:"h2",  e:"✍️", n:"旅行日記",     d:"5 趟旅程寫下一句話記錄", g:5, v:x => x.all.filter(t => t.note).length},
+    {id:"p1",  e:"🔮", n:"夢想清單",     d:"新增一趟還沒定日期的計畫", g:1, v:x => x.all.filter(t => tripStatus(t) === "n").length},
+    {id:"p2",  e:"⏳", n:"倒數計時中",   d:"有一趟即將出發的旅程", g:1, v:x => x.all.filter(t => tripStatus(t) === "u").length}]}
+];
+const ACH_ALL = ACH_GROUPS.flatMap(g => g.items);
+// 找出第一次達成的日期：依旅程結束日一趟一趟加進來，看哪一趟讓它達成
+function achDates(){
+  const done = state.trips.filter(t => ["v","o"].includes(tripStatus(t))).sort((a, b) => ((a.end || a.start || "") ).localeCompare(b.end || b.start || ""));
+  const out = {};
+  const pending = new Set(ACH_ALL.filter(a => !a.id.startsWith("h") && !a.id.startsWith("p")).map(a => a.id));
+  for (let i = 1; i <= done.length && pending.size; i++){
+    const x = makeCtx(done.slice(0, i));
+    pending.forEach(id => { const a = ACH_ALL.find(z => z.id === id); if (a.v(x) >= a.g){ out[id] = done[i-1].end || done[i-1].start; pending.delete(id); } });
+  }
+  return out;
+}
+function achState(){
+  const x = makeCtx(state.trips);
+  return ACH_ALL.map(a => { const cur = a.v(x); return {...a, cur: Math.min(cur, a.g), ok: cur >= a.g, hintText: a.hint ? a.hint(x) : ""}; });
+}
+function updateAchTab(){
+  if (!countries.length || !state.tripsLoaded) return;
+  const st = achState(), n = st.filter(a => a.ok).length;
+  const b = document.querySelector('.tab[data-view="badges"] .cnt'); if (b) b.textContent = `${n}/${st.length}`;
+  // 新解鎖提醒（只記在這台裝置）
+  let seen = null; try { seen = JSON.parse(localStorage.getItem("travelmap.ach") || "null"); } catch(e){}
+  const okIds = st.filter(a => a.ok).map(a => a.id);
+  if (seen === null){ try { localStorage.setItem("travelmap.ach", JSON.stringify(okIds)); } catch(e){} return; }
+  const fresh = st.filter(a => a.ok && !seen.includes(a.id));
+  if (fresh.length){ try { localStorage.setItem("travelmap.ach", JSON.stringify([...new Set(seen.concat(okIds))])); } catch(e){} achToast(fresh); }
+}
+function achToast(list){
+  const t = document.createElement("div"); t.className = "achtoast";
+  t.innerHTML = `<div class="atb">🎉</div><div><b>解鎖新成就！</b><span>${list.slice(0,3).map(a => esc(a.e + " " + a.n)).join("、")}${list.length > 3 ? ` 等 ${list.length} 個` : ""}</span></div>`;
+  t.addEventListener("click", () => { t.remove(); showStamps(true, "badges"); });
+  document.body.appendChild(t);
+  setTimeout(() => t.classList.add("show"), 30);
+  setTimeout(() => { t.classList.remove("show"); setTimeout(() => t.remove(), 400); }, 5200);
+}
+function renderBadges(){
+  const st = achState(), dates = achDates(), n = st.filter(a => a.ok).length, pct = Math.round(n / st.length * 100);
+  const head = `<div class="sbhead"><div><span class="kana">ACHIEVEMENTS</span><h2>成就徽章</h2></div>
+    <div class="achsum"><b>${n}</b><span>/ ${st.length} 已解鎖</span><div class="achbar"><i style="width:${pct}%"></i></div></div></div>`;
+  const body = ACH_GROUPS.map(g => {
+    const items = g.items.map(a => st.find(z => z.id === a.id));
+    const got = items.filter(a => a.ok).length;
+    return `<section class="agrp"><h3 class="rgh"><span class="rgdot">${g.icon}</span>${esc(g.name)}<small>${got} / ${items.length}</small></h3>
+      <div class="badges">${items.map(a => `<div class="badge ${a.ok ? "ok" : "lock"}" title="${esc(a.d)}">
+        <div class="medal"><span class="ribbon-l"></span><span class="ribbon-r"></span><span class="coin">${a.e}</span>${a.ok ? "" : `<span class="lk">🔒</span>`}</div>
+        <b>${esc(a.n)}</b><small>${esc(a.d)}</small>
+        ${a.ok ? `<em class="when">${dates[a.id] ? "達成於 " + esc(dates[a.id].slice(0,7).replace("-","/")) : "已達成"}</em>`
+               : `<div class="aprog"><i style="width:${Math.round(a.cur / a.g * 100)}%"></i></div><em>${a.cur} / ${a.g}${a.hintText ? "・" + esc(a.hintText) : ""}</em>`}
+      </div>`).join("")}</div></section>`;
+  }).join("");
+  return {head, body};
+}
+
 /* ---------- list pages ---------- */
-const LIST_VIEWS = ["stamps","countries","upcoming","friends"];
+const LIST_VIEWS = ["stamps","countries","upcoming","friends","badges"];
 function doneTrips(){ return state.trips.filter(t => ["v","o"].includes(tripStatus(t))); }
 function renderListView(dbNote){
   const V = $("#stampsView"), v = state.view;
@@ -1169,6 +1334,8 @@ function renderListView(dbNote){
           `<span>🧳 ${ts.length} 趟</span>${rs.size ? `<span>📍 ${rs.size} 區</span>` : ""}${last ? `<span>🗓️ ${esc(last.slice(0,7).replace("-","/"))}</span>` : ""}`}</span>
       </button>`; }).join("")}</div>` :
       `<div class="empty"><div class="big">🌏</div>還沒有去過的國家。<br>旅程回程日過了之後，國家就會出現在這裡。</div>`;
+  } else if (v === "badges"){
+    const r = renderBadges(); head = r.head; body = r.body;
   } else if (v === "friends"){
     const canEdit = state.canEdit !== false && !state.readOnly && !!state.db;
     head = `<span class="kana">TRAVEL BUDDIES</span><h2>旅伴・${state.companions.length} 位</h2>`;
@@ -1402,7 +1569,7 @@ function applyTrips(docs){
       companions: Array.isArray(x.companions) ? x.companions.filter(c => typeof c === "string") : []};
   });
   state.tripsLoaded = true;
-  updateStats(); paintWorld(); drawRegions(); renderPanel();
+  updateStats(); updateAchTab(); paintWorld(); drawRegions(); renderPanel();
 }
 function updateStats(){
   const done = state.trips.filter(t => ["v","o"].includes(tripStatus(t)));
@@ -1502,7 +1669,7 @@ async function initDb(){
     state.companions = snap.docs.map(d => { const x = d.data() || {}; return {id: d.id, name: String(x.name || "").slice(0, 20) || "旅伴", emoji: AVATARS.includes(x.emoji) ? x.emoji : AVATARS[0], createdAt: String(x.createdAt || ""), order: typeof x.order === "number" ? x.order : null}; })
       .sort((a, b) => ((a.order ?? 1e9) - (b.order ?? 1e9)) || a.createdAt.localeCompare(b.createdAt));
     if (state.sortIds){ const ids = new Set(state.companions.map(c => c.id)); state.sortIds = state.sortIds.filter(id => ids.has(id)).concat(state.companions.map(c => c.id).filter(id => !state.sortIds.includes(id))); }
-    state.compLoaded = true; renderPanel();
+    state.compLoaded = true; renderPanel(); updateAchTab();
   }, () => { state.compLoaded = true; });
   db.collection("trips").onSnapshot(snap => {
     if (!snap.metadata.fromCache){ clearTimeout(timer); if (state.dbNote.startsWith("旅程資料暫時")) state.dbNote = ""; }
@@ -1542,7 +1709,7 @@ async function boot(){
     MNG:["蒙古","蒙古國"], USA:["美國","美利堅合眾國"], GBR:["英國","英格蘭","大不列顛"], ITA:["義大利","意大利"], VNM:["越南"], SAU:["沙烏地阿拉伯","沙特阿拉伯"]};
   Object.entries(NAME_FIX).forEach(([id, names]) => { const c = byId.get(id); if (!c) return;
     const orig = c.n; c.n = names[0]; c.aliases = [...new Set(names.slice(1).concat(orig !== names[0] ? [orig] : []))]; c.alias = id === "TWN" ? "中華民國" : ""; });
-  updateStats();
+  updateStats(); updateAchTab();
   drawWorld();
   svg.call(zoom.transform, homeT());
   loadHiRes();
