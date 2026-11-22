@@ -82,5 +82,24 @@
       "09mc4m447gif005j70ai"
     ],
     "updatedAt": "2026-11-22T08:37:37.047Z"
+  },
+  {
+    "id": "mwrl61qweec7g4",
+    "country": "MYS",
+    "title": "快閃馬來西亞新山區",
+    "url": "",
+    "start": "2026-06-26",
+    "end": "2026-06-27",
+    "note": "快閃新山兩天一夜遊",
+    "regions": [
+      {
+        "id": "MYS-1143",
+        "n": "柔佛州"
+      }
+    ],
+    "companions": [
+      "09mc4m447gif005j70ai"
+    ],
+    "updatedAt": "2026-11-22T08:39:45.752Z"
   }
 ]
