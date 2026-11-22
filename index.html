@@ -65,6 +65,20 @@ header .sub{font-size:13px;color:var(--muted);margin-top:2px}
 .stat:hover{transform:translate(-2px,-3px);box-shadow:5px 6px 0 var(--edge)}
 .stat:active{transform:translate(1px,1px);box-shadow:1px 1px 0 var(--edge)}
 .stat[aria-current="page"]{transform:rotate(-3deg) translateY(-2px);box-shadow:4px 5px 0 var(--edge);outline:3px dashed var(--edge);outline-offset:3px}
+.sbtools{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.sorter{display:inline-flex;align-items:center;gap:4px;background:var(--paper);border:2.5px solid var(--edge);border-radius:999px;padding:3px;box-shadow:2px 2px 0 var(--edge)}
+.sorter .slabel{font-size:12px;font-weight:700;color:var(--muted);padding:0 6px 0 8px}
+.sorter button{border:0;background:transparent;border-radius:999px;padding:5px 12px;font:inherit;font-size:13.5px;font-weight:700;color:var(--ink);cursor:pointer;white-space:nowrap}
+.sorter button:hover{background:var(--sky-soft)}
+.sorter button[aria-pressed="true"]{background:var(--sun);box-shadow:inset 0 0 0 2px var(--edge)}
+.rgrp{display:flex;flex-direction:column;gap:12px;margin-top:6px}
+.rgrp+.rgrp{margin-top:18px;padding-top:16px;border-top:2.5px dashed var(--hair)}
+.rgh{display:flex;align-items:center;gap:10px;font-size:22px}
+.rgh small{font-family:var(--f-body);font-size:12.5px;color:var(--muted);font-weight:700}
+.rgdot{width:40px;height:40px;border-radius:50%;border:2.5px solid var(--edge);background:var(--sky-soft);display:grid;place-items:center;font-size:21px;box-shadow:2px 2px 0 var(--edge);transform:rotate(-6deg)}
+.rgc{display:flex;flex-direction:column;gap:10px}
+.rgcn{font-family:var(--f-display);font-size:17px;display:flex;align-items:center;gap:6px;padding-left:4px}
+.rgcn::before{content:"";width:10px;height:10px;border-radius:50%;background:var(--pink);border:2px solid var(--edge)}
 .sbhead{display:flex;align-items:flex-end;justify-content:space-between;gap:10px;flex-wrap:wrap}
 .ctiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,190px),220px));gap:20px 18px;padding:8px 2px 4px}
 .ctile2{position:relative;display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;padding:22px 14px 16px;border:2.5px solid var(--edge);border-radius:24px;cursor:pointer;color:var(--ink);font:inherit;
@@ -1071,6 +1085,19 @@ async function deleteCompanion(id){
   state.compConfirmDel = null; renderPanel();
 }
 
+/* ---------- stamp book sorting ---------- */
+const CONT_ZH = {"Asia":"亞洲","Europe":"歐洲","Africa":"非洲","North America":"北美洲","South America":"南美洲","Oceania":"大洋洲","Antarctica":"南極洲","Seven seas (open ocean)":"其他"};
+const CONT_ORDER = ["亞洲","大洋洲","歐洲","北美洲","南美洲","非洲","南極洲","其他"];
+const CONT_ICON = {"亞洲":"🏯","大洋洲":"🐨","歐洲":"🏰","北美洲":"🗽","南美洲":"🦙","非洲":"🦒","南極洲":"🐧","其他":"🌐"};
+const sbSort = (() => { try { const v = JSON.parse(localStorage.getItem("travelmap.sort") || "null"); if (v && (v.mode === "time" || v.mode === "region")) return v; } catch(e){} return {mode: "time", asc: false}; })();
+function setSort(mode){
+  if (mode === "time" && sbSort.mode === "time") sbSort.asc = !sbSort.asc;
+  else { sbSort.mode = mode; if (mode === "time") sbSort.asc = false; }
+  try { localStorage.setItem("travelmap.sort", JSON.stringify(sbSort)); } catch(e){}
+  renderPanel();
+}
+document.addEventListener("click", e => { const b = e.target.closest("[data-sort]"); if (b) setSort(b.dataset.sort); });
+
 /* ---------- list pages ---------- */
 const LIST_VIEWS = ["stamps","countries","upcoming","friends"];
 function doneTrips(){ return state.trips.filter(t => ["v","o"].includes(tripStatus(t))); }
@@ -1080,9 +1107,41 @@ function renderListView(dbNote){
   const byStartDesc = (a,b) => (b.start||"9999").localeCompare(a.start||"9999");
   let head = "", body = "";
   if (v === "stamps"){
-    const list = [...state.trips].sort(byStartDesc);
-    head = `<div class="sbhead"><div><span class="kana">STAMP BOOK</span><h2>我的集章冊</h2></div><button class="btn pink" data-newtrip>＋ 新增旅程</button></div>`;
-    body = list.length ? `<div class="trips">${list.map(t => tripCard(t, false)).join("")}</div>` :
+    const mode = sbSort.mode, asc = sbSort.asc;
+    const byTime = (a, b) => {
+      const ka = a.start || (asc ? "9999" : "9999"), kb = b.start || "9999";
+      return asc ? ka.localeCompare(kb) : kb.localeCompare(ka);
+    };
+    const sorter = `<div class="sorter" role="group" aria-label="排序方式">
+        <span class="slabel">排序</span>
+        <button type="button" data-sort="time" aria-pressed="${mode === "time"}">🗓️ 旅程時間 ${mode === "time" ? (asc ? "↑ 舊→新" : "↓ 新→舊") : ""}</button>
+        <button type="button" data-sort="region" aria-pressed="${mode === "region"}">🌏 區域</button>
+      </div>`;
+    head = `<div class="sbhead"><div><span class="kana">STAMP BOOK</span><h2>我的集章冊</h2></div><div class="sbtools">${state.trips.length > 1 ? sorter : ""}<button class="btn pink" data-newtrip>＋ 新增旅程</button></div></div>`;
+    let inner = "";
+    if (mode === "region"){
+      // 依洲 → 國家分組（出生地台灣排最前），組內依時間新→舊
+      const groups = new Map();
+      state.trips.forEach(t => {
+        const c = byId.get(t.country), cont = c ? (CONT_ZH[c.c] || "其他") : "其他";
+        if (!groups.has(cont)) groups.set(cont, new Map());
+        const g = groups.get(cont); if (!g.has(t.country)) g.set(t.country, []); g.get(t.country).push(t);
+      });
+      const homeCont = byId.get(HOME) ? CONT_ZH[byId.get(HOME).c] : "";
+      const conts = [...groups.keys()].sort((a, b) => (a === homeCont ? -1 : b === homeCont ? 1 : CONT_ORDER.indexOf(a) - CONT_ORDER.indexOf(b)));
+      inner = conts.map(cont => {
+        const g = groups.get(cont);
+        const ids = [...g.keys()].sort((a, b) => a === HOME ? -1 : b === HOME ? 1 : ((byId.get(a) || {}).n || a).localeCompare((byId.get(b) || {}).n || b, "zh-Hant"));
+        const n = [...g.values()].reduce((x, a) => x + a.length, 0);
+        return `<section class="rgrp"><h3 class="rgh"><span class="rgdot">${CONT_ICON[cont] || "🌐"}</span>${esc(cont)}<small>${ids.map(id => esc((byId.get(id) || {}).n || id)).join("、")}・${n} 趟</small></h3>
+          <div class="trips">${ids.map(id => g.get(id).sort((a, b) => (b.start || "9999").localeCompare(a.start || "9999")).map(t => tripCard(t, false)).join("")).join("")}</div>
+        </section>`;
+      }).join("");
+    } else {
+      inner = `<div class="trips">${[...state.trips].sort(byTime).map(t => tripCard(t, false)).join("")}</div>`;
+    }
+    const list = state.trips;
+    body = list.length ? inner :
       `<div class="empty"><div class="big">🧳</div>還沒有任何印章。<br>回到世界地圖點一個國家，就能加入第一本旅遊手冊。</div>`;
   } else if (v === "countries"){
     const m = new Map();
